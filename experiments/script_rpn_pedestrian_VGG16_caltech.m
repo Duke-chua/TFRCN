@@ -55,10 +55,13 @@ Faster_RCNN_Train.do_proposal_test_caltech(conf_proposal, model.stage1_rpn, data
 end
 
 function [anchors, output_width_map, output_height_map] = proposal_prepare_anchors(conf, cache_name, test_net_def_file)
+% conf                  - struct rpn parameter
+% cache_name            - [] rpn model name
+% test_net_def_file     - [] address model prototxt file address
     [output_width_map, output_height_map] ...                           
                                 = proposal_calc_output_size_caltech(conf, test_net_def_file);
     anchors                = proposal_generate_anchors_caltech(cache_name, ...
-                                    'scales',  2.6*(1.3.^(0:8)), ...
-                                    'ratios', [1 / 0.41], ...
+                                    'scales',  2.6*(1.3.^(0:8)), ... % anchors scales [2.6000    3.3800    4.3940    5.7122    7.4259    9.6536   12.5497   16.3146   21.2090]
+                                    'ratios', [1 / 0.41], ... % pedestrain high with ratio
                                     'exp_name', conf.exp_name);
 end

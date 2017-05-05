@@ -11,12 +11,12 @@ function aboxes = do_proposal_test_caltech(conf, model_stage, imdb, roidb, cache
     gt_num = 0;
     gt_re_num = 0;
     for i = 1:length(roidb.rois)
-        gts = roidb.rois(i).boxes(roidb.rois(i).ignores~=1, :);
+        gts = roidb.rois(i).boxes(roidb.rois(i).ignores~=1, :); % keep not ignores gt
         if ~isempty(gts)
-            rois = aboxes{i}(:, 1:4);
-            max_ols = max(boxoverlap(rois, gts));
-            gt_num = gt_num + size(gts, 1);
-            gt_re_num = gt_re_num + sum(max_ols >= 0.5);
+            rois = aboxes{i}(:, 1:4); % proposal roidb
+            max_ols = max(boxoverlap(rois, gts)); % compute IoU
+            gt_num = gt_num + size(gts, 1); % count gt num
+            gt_re_num = gt_re_num + sum(max_ols >= 0.5); % count recall gt num
         end
     end
     fprintf('gt recall rate = %.4f\n', gt_re_num / gt_num);
@@ -29,8 +29,8 @@ function aboxes = do_proposal_test_caltech(conf, model_stage, imdb, roidb, cache
     DIRS=dir(fullfile(fullfile(cache_dir, method_name))); 
     n=length(DIRS);
     for i=1:n
-        if (DIRS(i).isdir && ~strcmp(DIRS(i).name,'.') && ~strcmp(DIRS(i).name,'..') )
-            rmdir(fullfile(cache_dir, method_name ,DIRS(i).name),'s');
+        if (DIRS(i).isdir && ~strcmp(DIRS(i).name,'.') && ~strcmp(DIRS(i).name,'..') ) % except . ..
+            rmdir(fullfile(cache_dir, method_name ,DIRS(i).name),'s'); % remove include subdir
         end
     end
     
@@ -42,10 +42,10 @@ function aboxes = do_proposal_test_caltech(conf, model_stage, imdb, roidb, cache
             fid = fopen(fullfile(cache_dir, method_name, sstr{1}, [sstr{2} '.txt']), 'a');
             % transform [x1 y1 x2 y2] to [x y w h], for matching the
             % caltech evaluation protocol
-            res_boxes{i}(:, 3) = res_boxes{i}(:, 3) - res_boxes{i}(:, 1);
-            res_boxes{i}(:, 4) = res_boxes{i}(:, 4) - res_boxes{i}(:, 2);
+            res_boxes{i}(:, 3) = res_boxes{i}(:, 3) - res_boxes{i}(:, 1); % h
+            res_boxes{i}(:, 4) = res_boxes{i}(:, 4) - res_boxes{i}(:, 2); % w
             for j = 1:size(res_boxes{i}, 1)
-                fprintf(fid, '%d,%f,%f,%f,%f,%f\n', str2double(sstr{3}(2:end))+1, res_boxes{i}(j, :));
+                fprintf(fid, '%d,%f,%f,%f,%f,%f\n', str2double(sstr{3}(2:end))+1, res_boxes{i}(j, :)); % write aboxes roi
             end
             fclose(fid);
         end
@@ -64,22 +64,23 @@ function aboxes = do_proposal_test_caltech(conf, model_stage, imdb, roidb, cache
 end
 
 function aboxes = boxes_filter(aboxes, per_nms_topN, nms_overlap_thres, after_nms_topN, use_gpu)
+% do nms
     % to speed up nms
     if per_nms_topN > 0
-        aboxes = cellfun(@(x) x(1:min(size(x, 1), per_nms_topN), :), aboxes, 'UniformOutput', false);
+        aboxes = cellfun(@(x) x(1:min(size(x, 1), per_nms_topN), :), aboxes, 'UniformOutput', false); % make sure box not excced, get 1:min(size(x, 1), per_nms_topN) aboxes
     end
     % do nms
     if nms_overlap_thres > 0 && nms_overlap_thres < 1
-        if 0
+        if 0 %never run
             for i = 1:length(aboxes)
                 tic_toc_print('weighted ave nms: %d / %d \n', i, length(aboxes));
-                aboxes{i} = get_keep_boxes(aboxes{i}, 0, nms_overlap_thres, 0.7);
+                aboxes{i} = get_keep_boxes(aboxes{i}, 0, nms_overlap_thres, 0.7); %author del this func
             end 
         else
             if use_gpu
                 for i = 1:length(aboxes)
                     tic_toc_print('nms: %d / %d \n', i, length(aboxes));
-                    aboxes{i} = aboxes{i}(nms(aboxes{i}, nms_overlap_thres, use_gpu), :);
+                    aboxes{i} = aboxes{i}(nms(aboxes{i}, nms_overlap_thres, use_gpu), :); % do nms
                 end
             else
                 parfor i = 1:length(aboxes)
@@ -91,7 +92,7 @@ function aboxes = boxes_filter(aboxes, per_nms_topN, nms_overlap_thres, after_nm
     aver_boxes_num = mean(cellfun(@(x) size(x, 1), aboxes, 'UniformOutput', true));
     fprintf('aver_boxes_num = %d, select top %d\n', round(aver_boxes_num), after_nms_topN);
     if after_nms_topN > 0
-        aboxes = cellfun(@(x) x(1:min(size(x, 1), after_nms_topN), :), aboxes, 'UniformOutput', false);
+        aboxes = cellfun(@(x) x(1:min(size(x, 1), after_nms_topN), :), aboxes, 'UniformOutput', false); % only keep after_nms_topN boxes
     end
 end
 

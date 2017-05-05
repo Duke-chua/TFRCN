@@ -30,7 +30,7 @@ for i = 1:size(b, 1)
     inter = w.*h;
     aarea = (a(:,3)-a(:,1)+1) .* (a(:,4)-a(:,2)+1);
     barea = (b(i,3)-b(i,1)+1) * (b(i,4)-b(i,2)+1);
-    % intersection over union overlap
+    % intersection over union overlap IoU
     o{i} = inter ./ (aarea+barea-inter);
     % set invalid entries to 0 overlap
     o{i}(w <= 0) = 0;

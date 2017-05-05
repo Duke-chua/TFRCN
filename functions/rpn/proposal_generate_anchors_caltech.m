@@ -7,6 +7,7 @@ function anchors = proposal_generate_anchors_caltech(cache_name, varargin)
 % --------------------------------------------------------
 
 %% inputs
+% inputParser was an input translation
     ip = inputParser;
     ip.addRequired('cache_name',                        @isstr);
 

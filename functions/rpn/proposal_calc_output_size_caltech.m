@@ -21,7 +21,7 @@ function [output_width_map, output_height_map] = proposal_calc_output_size_calte
 % %         input = [480 640];
 % %     end
 %     % caltech image size are fixed as 640x480
-    input = [conf.max_size conf.scales];
+    input = [conf.max_size conf.scales]; % input image size
     
     output_w = nan(size(input));
     output_h = nan(size(input));
@@ -34,12 +34,12 @@ function [output_width_map, output_height_map] = proposal_calc_output_size_calte
         caffe_net.reshape_as_input(net_inputs);
         caffe_net.forward(net_inputs);
         
-        cls_score = caffe_net.blobs('proposal_cls_score').get_data();
+        cls_score = caffe_net.blobs('proposal_cls_score').get_data(); % cls_score size is square, s/16,s/16,18
         output_w(i) = size(cls_score, 1);
         output_h(i) = size(cls_score, 2);
     end
     
-    output_width_map = containers.Map(input, output_w);
+    output_width_map = containers.Map(input, output_w); % containers.Map like a dictionary
     output_height_map = containers.Map(input, output_h);
     
     caffe.reset_all(); 
