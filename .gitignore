@@ -12,6 +12,7 @@ $RECYCLE.BIN/
 models/
 data/
 external/code3.2.1
+external/piotr-toolbox-kaist
 datasets/caltech/test
 datasets/caltech/train
 datasets/kaist_visible/test
@@ -22,6 +23,7 @@ imdb/cache
 *.caffemodel
 *.mat
 *.jpg
+*.mexa64
 bin/
 
 
