@@ -18,8 +18,6 @@ roidb.name = imdb.name;
 
 anno_path = ['./datasets/kaist_visible/' roidb.name '/annotations'];
 % prop_path = ['./datasets/kaist/visible/' roidb.name '/proposals'];
-rmpath(genpath('./external/code3.2.1'));
-rmpath(genpath('./external/toolbox'));
 addpath(genpath('./external/piotr-toolbox-kaist'));
 % pLoad={'lbls',{'person'},'ilbls',{'people'},'squarify',{3,.41}};
 pLoad={'lbls',{'person'},'ilbls',{'people','person?','cyclist'},'squarify',{3,.41}}; % copy from acfDemoKAIST.m and add squarify see bbApply.m
