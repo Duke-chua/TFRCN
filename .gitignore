@@ -17,6 +17,8 @@ datasets/caltech/test
 datasets/caltech/train
 datasets/kaist_visible/test
 datasets/kaist_visible/train
+datasets/kaist_lwir/test
+datasets/kaist_lwir/train
 output/
 cachedir/
 imdb/cache

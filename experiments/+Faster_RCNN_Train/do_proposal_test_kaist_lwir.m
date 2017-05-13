@@ -1,9 +1,9 @@
-function aboxes = do_proposal_test_kaist_visible(conf, model_stage, imdb, roidb, cache_name, method_name)
-    aboxes                      = proposal_test_kaist_visible(conf, imdb, ...
+function aboxes = do_proposal_test_kaist_lwir(conf, model_stage, imdb, roidb, cache_name, method_name)
+    aboxes                      = proposal_test_kaist_lwir(conf, imdb, ...
                                         'net_def_file',     model_stage.test_net_def_file, ...
                                         'net_file',         model_stage.output_model_file, ...
                                         'cache_name',       model_stage.cache_name); 
-          
+    diary on; %
     fprintf('Doing nms ... ');                                
     aboxes                      = boxes_filter(aboxes, model_stage.nms.per_nms_topN, model_stage.nms.nms_overlap_thres, model_stage.nms.after_nms_topN, conf.use_gpu);      
     
@@ -20,8 +20,9 @@ function aboxes = do_proposal_test_kaist_visible(conf, model_stage, imdb, roidb,
         end
     end
     fprintf('gt recall rate = %.4f\n', gt_re_num / gt_num);
-
-    fprintf('Preparing the results for KAIST_visible evaluation ...');
+    diary off; %
+    
+    fprintf('Preparing the results for KAIST_lwir evaluation ...');
     cache_dir = fullfile(pwd, 'output', conf.exp_name, 'rpn_cachedir', cache_name);
     res_boxes = aboxes;
     mkdir_if_missing(fullfile(cache_dir, method_name));
@@ -54,7 +55,7 @@ function aboxes = do_proposal_test_kaist_visible(conf, model_stage, imdb, roidb,
     
     % copy results to eval folder and run eval script to get figure.
     folder1 = fullfile(pwd, 'output', conf.exp_name, 'rpn_cachedir', cache_name, method_name);
-    folder2 = fullfile(pwd, 'external', 'piotr-toolbox-kaist', 'data-kaist-visible','res', method_name);
+    folder2 = fullfile(pwd, 'external', 'piotr-toolbox-kaist', 'data-kaist-lwir','res', method_name);
     mkdir_if_missing(folder2);
     copyfile(folder1, folder2);
     tmp_dir = pwd;
