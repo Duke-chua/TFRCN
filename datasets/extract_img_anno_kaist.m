@@ -1,9 +1,8 @@
-% extract_img_anno()
-% --------------------------------------------------------
-% RPN_BF
-% Copyright (c) 2016, Liliang Zhang
-% Licensed under The MIT License [see LICENSE for details]
-% --------------------------------------------------------
+% extract_img_anno_kaist()
+% 从KAIST数据集中提取帧图像和帧标注文件
+% -------------------------------------------------------
+% Copyright (c) 2017, Zhewei Xu
+% -------------------------------------------------------
 pth = '/mnt/RD/DataSet/KAIST/data-kaist-lwir/';
 tDir = './datasets/kaist_lwir/';
 
