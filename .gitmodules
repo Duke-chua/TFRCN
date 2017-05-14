@@ -1,3 +1,6 @@
 [submodule "external/caffe"]
 	path = external/caffe
 	url = https://github.com/xzhewei/X-caffe.git
+[submodule "external/toolbox"]
+	path = external/toolbox
+	url = https://github.com/xzhewei/X-toolbox.git
