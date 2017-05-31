@@ -55,11 +55,11 @@ function aboxes = do_proposal_test_kaist_lwir(conf, model_stage, imdb, roidb, ca
     
     % copy results to eval folder and run eval script to get figure.
     folder1 = fullfile(pwd, 'output', conf.exp_name, 'rpn_cachedir', cache_name, method_name);
-    folder2 = fullfile(pwd, 'external', 'piotr-toolbox-kaist', 'data-kaist-lwir','res', method_name);
+    folder2 = fullfile(pwd, 'external', 'toolbox', 'data-kaist-lwir','res', method_name);
     mkdir_if_missing(folder2);
     copyfile(folder1, folder2);
     tmp_dir = pwd;
-    cd(fullfile(pwd, 'external','piotr-toolbox-kaist'));
+    cd(fullfile(pwd, 'external','toolbox'));
     dbEval_kaist;
     cd(tmp_dir);
 end

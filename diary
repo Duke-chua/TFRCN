@@ -1,0 +1,14 @@
+Doing nms ... nms: 165 / 2252 
+nms: 340 / 2252 
+nms: 516 / 2252 
+nms: 692 / 2252 
+nms: 868 / 2252 
+nms: 1043 / 2252 
+nms: 1219 / 2252 
+nms: 1395 / 2252 
+nms: 1571 / 2252 
+nms: 1746 / 2252 
+nms: 1922 / 2252 
+nms: 2096 / 2252 
+aver_boxes_num = 1249, select top 40
+gt recall rate = 0.9534

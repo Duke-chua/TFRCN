@@ -17,20 +17,20 @@ opts.gpu_id                 = 1;
 % active_caffe_mex(opts.gpu_id, opts.caffe_version);
 
 % ouput
-% exp_name = 'VGG16_kaist_lwir';
+exp_name = 'VGG16_kaist_lwir';
 % exp_name = 'RPN_kv_kaist_lwir';
-exp_name = 'RPN_kv_kaist_lwir_flip';
+% exp_name = 'RPN_kv_kaist_lwir_flip';
 
 % do validation, or not 
 opts.do_val                 = true; 
 % model
-% model                       = Model.RPN_kaist_visible_for_rpn_pedestrian_kaist_lwir('VGG16_caltech');
-model                       = Model.RPN_kaist_visible_for_rpn_pedestrian_kaist_lwir('RPN_kaist_lwir');
+model                       = Model.VGG16_for_rpn_pedestrian_kaist_lwir('VGG16_caltech');
+% model                       = Model.RPN_kaist_visible_for_rpn_pedestrian_kaist_lwir('RPN_kaist_lwir');
 % cache base
-cache_base_proposal         = 'RPN-kv_kaist_lwir_flip'; % output/cache_base_proposal
+cache_base_proposal         = 'rpn_kaist_lwir_vgg_16layers'; % output/cache_base_proposal
 % train/test data
 dataset                     = [];
-use_flipped                 = true;
+use_flipped                 = false;
 dataset                     = Dataset.kaist_lwir_trainval(dataset, 'train', use_flipped);
 % dataset                     = Dataset.kaist_lwir_trainval(dataset, 'train');
 % dataset                     = Dataset.kaist_lwir_test(dataset, 'test', false);
@@ -53,8 +53,8 @@ model.stage1_rpn            = Faster_RCNN_Train.do_proposal_train_kaist_lwir(con
 % model.stage1_rpn.output_model_file = '/mnt/RD/Code/ubuntu/RPN_BF_FIR/output/VGG16_kaist_visible/rpn_cachedir/rpn_kaist_visible_vgg_16layers_stage1_rpn/final';
 %% test
 fprintf('\n***************\nstage one RPN test\n***************\n');
-cache_name = 'RPN-kv_kaist_lwir_flip'; % output/exp_name/rpn_cahedir/cache_name
-method_name = 'RPN-kv-ped-lwir_flip'; % external/piotr-toolbox-kaist/data-XXXX/res/method_name
+cache_name = 'RPN_kaist_lwir'; % output/exp_name/rpn_cahedir/cache_name
+method_name = 'RPN-ped-lwir'; % external/piotr-toolbox-kaist/data-XXXX/res/method_name
 Faster_RCNN_Train.do_proposal_test_kaist_lwir(conf_proposal, model.stage1_rpn, dataset.imdb_test, dataset.roidb_test, cache_name, method_name);
 
 end

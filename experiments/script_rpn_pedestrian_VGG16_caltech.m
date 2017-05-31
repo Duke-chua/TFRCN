@@ -15,7 +15,7 @@ opts.caffe_version          = 'caffe_faster_rcnn';
 opts.gpu_id                 = auto_select_gpu;
 active_caffe_mex(opts.gpu_id, opts.caffe_version);
 
-exp_name = 'VGG16_caltech';
+ exp_name = 'VGG16_caltech';
 
 % do validation, or not 
 opts.do_val                 = true; 
