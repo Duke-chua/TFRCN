@@ -19,6 +19,7 @@ datasets/kaist_visible/test
 datasets/kaist_visible/train
 datasets/kaist_lwir/test
 datasets/kaist_lwir/train
+datasets/scut
 output/
 cachedir/
 imdb/cache
