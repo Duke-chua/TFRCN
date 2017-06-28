@@ -7,8 +7,8 @@ switch usage
     case {'test'}
         dataset.imdb_test     = imdb_from_scut('./datasets/scut', 'train04', false) ;
         dataset.roidb_test    = dataset.imdb_test.roidb_func(dataset.imdb_test, false);
+
     otherwise
         error('usage = ''train'' or ''test''');
 end
-
 end

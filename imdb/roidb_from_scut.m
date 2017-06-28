@@ -20,9 +20,9 @@ anno_path = ['./datasets/scut/' roidb.name '/annotations'];
 % prop_path = ['./datasets/scut/' roidb.name '/proposals'];
 
 addpath(genpath('./external/code3.2.1'));
-pLoad={'lbls',{'walk_person'},'ilbls',{'people','ride_person','person?',...
+pLoad={'lbls',{'walk_person','ride_person'},'ilbls',{'people','person?',...
        'people?','squat_person'},'squarify',{3,.41}};
-pLoad = [pLoad 'hRng',[50 inf], 'vRng',[1 1] ];
+pLoad = [pLoad 'hRng',[20 inf], 'vRng',[1 1] ];
 
 if flip
     cache_file = ['./imdb/cache/roidb_scut_' imdb.name '_flip'];

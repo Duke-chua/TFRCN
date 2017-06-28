@@ -1,4 +1,4 @@
-function script_rpn_pedestrian_VGG16_scut()
+function script_rpn_pedestrian_VGG16_scut_test()
 % script_rpn_pedestrian_VGG16_scut()
 % --------------------------------------------------------
 % RPN_BF
@@ -16,7 +16,7 @@ opts.caffe_version          = 'caffe_faster_rcnn';
 opts.gpu_id =1;
 % active_caffe_mex(opts.gpu_id, opts.caffe_version);
 
-exp_name = 'VGG16_scut_person';
+exp_name = 'VGG16_scut';
 
 % do validation, or not 
 opts.do_val                 = true; 
@@ -24,10 +24,10 @@ opts.do_val                 = true;
 model                       = Model.VGG16_for_rpn_pedestrian('VGG16_caltech');
 % cache base
 cache_base_proposal         = 'rpn_caltech_vgg_16layers';
+dataset=[];
 % train/test data
-dataset                     = [];
-dataset                     = Dataset.scut_trainval(dataset, 'train');
-dataset                     = Dataset.scut_test(dataset, 'scut02');
+dataset                     = Dataset.scut_trainval(dataset, 'testall');
+dataset                     = Dataset.scut_test(dataset, 'testall');
 
 % %% -------------------- TRAIN --------------------
 % conf

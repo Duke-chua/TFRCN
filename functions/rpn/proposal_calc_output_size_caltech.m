@@ -6,7 +6,6 @@ function [output_width_map, output_height_map] = proposal_calc_output_size_calte
 % Licensed under The MIT License [see LICENSE for details]
 % --------------------------------------------------------
 
-%     caffe.init_log(fullfile(pwd, 'caffe_log'));
     caffe_net = caffe.Net(test_net_def_file, 'test');
     
      % set gpu/cpu
@@ -16,11 +15,8 @@ function [output_width_map, output_height_map] = proposal_calc_output_size_calte
         caffe.set_mode_cpu();
     end
     
-%     input = conf.scales:conf.max_size;
-% %     if conf.max_size == 640      
-% %         input = [480 640];
-% %     end
-%     % caltech image size are fixed as 640x480
+
+    % caltech image size are fixed as 640x480
     input = [conf.max_size conf.scales]; % input image size
     
     output_w = nan(size(input));

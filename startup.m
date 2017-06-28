@@ -15,7 +15,7 @@ function startup()
     
     addpath(fullfile(curdir, 'datasets/caltech'));
 
-    addpath(genpath(fullfile(curdir, 'external/toolbox')));
+    addpath(genpath(fullfile(curdir, 'external/zcvtoolbox')));
 
     caffe_path = fullfile(curdir, 'external', 'caffe', 'matlab');
     if exist(caffe_path, 'dir') == 0

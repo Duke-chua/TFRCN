@@ -1,4 +1,3 @@
-
 cur_dir = pwd;
 cd(fileparts(mfilename('fullpath')));
 

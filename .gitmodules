@@ -4,3 +4,6 @@
 [submodule "external/code3.2.1"]
 	path = external/code3.2.1
 	url = https://github.com/xzhewei/labeltool.git
+[submodule "external/zcvtoolbox"]
+	path = external/zcvtoolbox
+	url = https://github.com/xzhewei/zcvtoolbox.git
