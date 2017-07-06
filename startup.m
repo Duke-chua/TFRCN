@@ -14,7 +14,7 @@ function startup()
     addpath(genpath(fullfile(curdir, 'imdb')));
     
     addpath(fullfile(curdir, 'datasets/caltech'));
-
+    addpath(genpath(fullfile(curdir, 'external/code3.2.1')));
     addpath(genpath(fullfile(curdir, 'external/zcvtoolbox')));
 
     caffe_path = fullfile(curdir, 'external', 'caffe', 'matlab');
