@@ -13,10 +13,10 @@ run(fullfile(fileparts(fileparts(mfilename('fullpath'))), 'startup'));
 %% -------------------- CONFIG --------------------
 opts.caffe_version          = 'caffe_faster_rcnn';
 % opts.gpu_id                 = auto_select_gpu;
-opts.gpu_id =1;
+opts.gpu_id                 = 4;
 % active_caffe_mex(opts.gpu_id, opts.caffe_version);
 
-exp_name = 'VGG16_scut_person';
+exp_name = '170719-VGG16_scut_person_train04_all';
 
 % do validation, or not 
 opts.do_val                 = true; 
@@ -27,7 +27,7 @@ cache_base_proposal         = 'rpn_caltech_vgg_16layers';
 % train/test data
 dataset                     = [];
 dataset                     = Dataset.scut_trainval(dataset, 'train');
-dataset                     = Dataset.scut_test(dataset, 'scut02');
+dataset                     = Dataset.scut_test(dataset, 'test');
 
 % %% -------------------- TRAIN --------------------
 % conf
@@ -46,8 +46,8 @@ fprintf('\n***************\nstage one RPN \n***************\n');
 model.stage1_rpn            = Faster_RCNN_Train.do_proposal_train_scut(conf_proposal, dataset, model.stage1_rpn, opts.do_val);
 
 %% test
-cache_name = 'scut';
-method_name = 'RPN-ped';
+cache_name = 'scut02';
+method_name = 'RPN-ped_VGG16_scut_person_train04_all';
 Faster_RCNN_Train.do_proposal_test_scut(conf_proposal, model.stage1_rpn, dataset.imdb_test, dataset.roidb_test, cache_name, method_name);
 
 end

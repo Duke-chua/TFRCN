@@ -12,7 +12,8 @@ clear is_valid_handle; % to clear init_key
 run(fullfile(fileparts(fileparts(mfilename('fullpath'))), 'startup'));
 %% -------------------- CONFIG --------------------
 opts.caffe_version          = 'caffe_faster_rcnn';
-opts.gpu_id                 = auto_select_gpu;
+% opts.gpu_id                 = auto_select_gpu;
+opts.gpu_id                 = 4;
 active_caffe_mex(opts.gpu_id, opts.caffe_version);
 
  exp_name = 'VGG16_caltech';
