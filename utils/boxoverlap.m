@@ -35,6 +35,9 @@ for i = 1:size(b, 1)
     % set invalid entries to 0 overlap
     o{i}(w <= 0) = 0;
     o{i}(h <= 0) = 0;
+    if(isempty(a))
+       o{i} = 0; 
+    end
 end
 
 o = cell2mat(o); %cell转mat
