@@ -6,24 +6,22 @@ clear is_valid_handle; % to clear init_key
 run(fullfile(fileparts(fileparts(mfilename('fullpath'))), 'startup'));
 %% -------------------- CONFIG --------------------
 opts.caffe_version          = 'caffe_faster_rcnn';
-opts.gpu_id                 = 4;
+opts.gpu_id                 = 2;
 active_caffe_mex(opts.gpu_id, opts.caffe_version);
 
-exp_name = '170719-VGG16_scut_person_train04_all';
+exp_name = 'VGG16_scut';
 
 % do validation, or not 
 opts.do_val                 = true; 
 % model
-model                       = Model.VGG16_for_rpn_pedestrian_caltech(exp_name);
+model                       = Model.VGG16_for_rpn_pedestrian('VGG16_caltech');
 % cache base
-cache_base_proposal         = 'rpn_caltech_vgg_16layers';
+cache_base_proposal         = 'rpn_scut04_vgg_16layers'; % ouput/exp_name/rpn_cachedir/cache_base_proposal
 % train/test data
 dataset                     = [];
-% use_flipped                 = true;
-% dataset                     = Dataset.caltech_trainval(dataset, 'train', use_flipped);
-dataset                     = Dataset.scut_trainval(dataset, 'train');
-% dataset                     = Dataset.caltech_test(dataset, 'test', false);
-dataset                     = Dataset.scut_test(dataset, 'test');
+use_flipped                 = false;
+dataset                     = Dataset.scut_trainval(dataset, 'train',use_flipped);
+dataset                     = Dataset.scut_test(dataset, 'test',false);
 
 % %% -------------------- TRAIN --------------------
 % conf
@@ -60,11 +58,11 @@ roidb_train_BF = Faster_RCNN_Train.do_generate_bf_proposal_scut(conf_proposal, m
 %% train the BF
 BF_cachedir = fullfile(pwd, 'output', exp_name, 'bf_cachedir');
 mkdir_if_missing(BF_cachedir);
-dataDir='datasets/caltech/';
-posGtDir=[dataDir 'train' '/annotations'];
+dataDir='datasets/scut/';
+posGtDir=[dataDir 'train04' '/annotations'];
 addpath('external/code3.2.1');
-addpath(genpath('external/zcvtoolbox'));
-BF_prototxt_path = fullfile('models', exp_name, 'bf_prototxts', 'test_feat_conv34atrous_v2.prototxt');
+addpath(genpath('external/toolbox'));
+BF_prototxt_path = fullfile('models', 'VGG16_caltech', 'bf_prototxts', 'test_feat_conv34atrous_v2.prototxt');
 conf.image_means = model.mean_image;
 conf.test_scales = conf_proposal.test_scales;
 conf.test_max_size = conf_proposal.max_size;
@@ -83,7 +81,7 @@ caffe_net.copy_from(final_model_path);
 caffe.set_mode_gpu();
 
 % set up opts for training detector (see acfTrain)
-opts=DeepTrain_otf_trans_ratio(); 
+opts=BF.do_train_bf(); 
 opts.cache_dir = BF_cachedir;
 opts.name=fullfile(opts.cache_dir, 'DeepCaltech_otf');
 opts.nWeak=[64 128 256 512 1024 1536 2048];
@@ -93,8 +91,8 @@ opts.pBoost.discrete=0;
 opts.pBoost.pTree.fracFtrs=1/4; 
 opts.first_nNeg = 30000;
 opts.nNeg=5000; opts.nAccNeg=50000;
-pLoad={'lbls',{'walk_person','ride_person'},'ilbls',{'people'},'squarify',{3,.41}};
-opts.pLoad = [pLoad 'hRng',[50 inf], 'vRng',[1 1] ];
+pLoad={'lbls',{'walk_person'},'ilbls',{'ride_person','people','person?','people?','squat_person'},'squarify',{3,.41}};
+opts.pLoad = [pLoad 'hRng',[50 inf], 'vType', {'none'}];
 opts.roidb_train = roidb_train_BF;
 opts.roidb_test = roidb_test_BF;
 opts.imdb_train = dataset.imdb_train{1};
@@ -117,9 +115,9 @@ opts.ratio = 1.0;
 opts.nms_thres = 0.5;
 
 % forward an image to check error and get the feature length
-img = imread(dataset.imdb_test.image_at(1));
+img = imread(dataset.imdb_test.image_at(16));
 tic;
-tmp_box = roidb_test_BF.rois(1).boxes;
+tmp_box = roidb_test_BF.rois(16).boxes;
 retain_num = round(size(tmp_box, 1) * opts.bg_hard_min_ratio(end));
 retain_idx = randperm(size(tmp_box, 1), retain_num);
 sel_idx = true(size(tmp_box, 1), 1);
@@ -130,7 +128,7 @@ if opts.bg_nms_thres < 1
     nms_sel_idxes = nms([sel_box sel_scores], opts.bg_nms_thres);
     sel_idx = sel_idx(nms_sel_idxes);
 end
-tmp_box = roidb_test_BF.rois(1).boxes(sel_idx, :);
+tmp_box = roidb_test_BF.rois(16).boxes(sel_idx, :);
 feat = rois_get_features_ratio(conf, caffe_net, img, tmp_box, opts.max_rois_num_in_gpu, opts.ratio);
 toc;
 opts.feat_len = length(feat);
@@ -143,7 +141,7 @@ end
 opts.train_gts = train_gts;
 
 % train BF detector
-detector = DeepTrain_otf_trans_ratio( opts );
+detector = BF.do_train_bf( opts );
 
 % visual
 if 0 % set to 1 for visual
@@ -171,13 +169,13 @@ if 0 % set to 1 for visual
 end
 
 % test detector and plot roc
-method_name = 'RPN+BF_VGG16_scut_person_train04_all';
+method_name = 'RPN+BF';
 folder1 = fullfile(pwd, 'output', exp_name, 'bf_cachedir', method_name);
 folder2 = fullfile(pwd, 'external', 'code3.2.1', 'data-scut', 'res', method_name);
 
 if ~exist(folder1, 'dir')
-    [~,~,gt,dt]=DeepTest_otf_trans_ratio('name',opts.name,'roidb_test', opts.roidb_test, 'imdb_test', opts.imdb_test, ...
-        'gtDir',[dataDir 'test/annotations'],'pLoad',[pLoad, 'hRng',[30 inf],...
+    [~,~,gt,dt]=BF.do_test_bf('name',opts.name,'roidb_test', opts.roidb_test, 'imdb_test', opts.imdb_test, ...
+        'gtDir',[dataDir 'test/annotations'],'pLoad',[pLoad, 'hRng',[50 inf],...
         'xRng',[10 700],'yRng',[10 570]],...
         'reapply',1,'show',2, 'nms_thres', opts.nms_thres, ...
         'conf', opts.conf, 'caffe_net', opts.caffe_net, 'silent', false, 'cache_dir', opts.cache_dir, 'ratio', opts.ratio);
@@ -186,7 +184,7 @@ end
 copyfile(folder1, folder2);
 tmp_dir = pwd;
 cd(fullfile(pwd, 'external', 'code3.2.1'));
-dbEval_RPNBF;
+dbEval_scut;
 cd(tmp_dir);
 
 caffe.reset_all();

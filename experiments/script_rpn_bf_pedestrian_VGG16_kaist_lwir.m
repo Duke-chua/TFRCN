@@ -7,21 +7,21 @@ function script_rpn_bf_pedestrian_VGG16_kaist_lwir()
 % --------------------------------------------------------
 clc;
 clear mex;
-clear is_valid_handle; % to clear init_key
+clear is_valid_handle; % to clear init_keycaltech
 % run(fullfile(fileparts(fileparts(mfilename('fullpath'))), 'startup'));
 %% -------------------- CONFIG --------------------
 opts.caffe_version          = 'caffe_faster_rcnn';
 % opts.gpu_id                 = auto_select_gpu;
 % gpuDevice([]);
 opts.gpu_id                 = 1;
-% active_caffe_mex(opts.gpu_id, opts.caffe_version);
+active_caffe_mex(opts.gpu_id, opts.caffe_version);
 
 exp_name = 'VGG16_kaist_lwir';
 
 % do validation, or not 
 opts.do_val                 = true; 
 % model
-model                       = Model.RPN_kaist_visible_for_rpn_pedestrian_kaist_lwir('VGG16_caltech');
+model                       = Model.VGG16_for_rpn_pedestrian_kaist_lwir('VGG16_caltech');
 % cache base
 cache_base_proposal         = 'rpn_kaist_lwir_vgg_16layers';
 % train/test data
@@ -71,7 +71,7 @@ dataDir='datasets/kaist_lwir/';
 posGtDir=[dataDir 'train' '/annotations'];
 % addpath('external/code3.2.1');
 addpath(genpath('external/toolbox'));
-BF_prototxt_path = fullfile('models', exp_name, 'bf_prototxts', 'test_feat_conv34atrous_v2.prototxt');
+BF_prototxt_path = fullfile('models', 'VGG16_caltech', 'bf_prototxts', 'test_feat_conv34atrous_v2.prototxt');
 conf.image_means = model.mean_image;
 conf.test_scales = conf_proposal.test_scales;
 conf.test_max_size = conf_proposal.max_size;
@@ -178,9 +178,9 @@ if 0 % set to 1 for visual
 end
 
 % test detector and plot roc
-method_name = 'RPN+BF-kaist-lwir';
+method_name = 'RPN+BF';
 folder1 = fullfile(pwd, 'output', exp_name, 'bf_cachedir', method_name);
-folder2 = fullfile(pwd, 'external', 'toolbox', 'data-kaist-lwir', 'res', method_name);
+folder2 = fullfile(pwd, 'external', 'code3.2.1', 'data-kaist', 'res', method_name);
 
 if ~exist(folder1, 'dir')
     [~,~,gt,dt]=DeepTest_otf_trans_ratio('name',opts.name,'roidb_test', opts.roidb_test, 'imdb_test', opts.imdb_test, ...
@@ -192,7 +192,7 @@ end
 
 copyfile(folder1, folder2);
 tmp_dir = pwd;
-cd(fullfile(pwd, 'external', 'toolbox'));
+cd(fullfile(pwd, 'external', 'code3.2.1'));
 dbEval_kaist;
 cd(tmp_dir);
 
