@@ -1,13 +1,12 @@
-function anchors = proposal_generate_anchors_caltech(cache_name, varargin)
-% anchors = proposal_generate_anchors_caltech(cache_name, varargin)
+function anchors = proposal_generate_anchors(cache_name, varargin)
+% anchors = proposal_generate_anchors(cache_name, varargin)
 % --------------------------------------------------------
-% RPN_BF
-% Copyright (c) 2015, Liliang Zhang
+% Faster R-CNN
+% Copyright (c) 2015, Shaoqing Ren
 % Licensed under The MIT License [see LICENSE for details]
 % --------------------------------------------------------
 
 %% inputs
-% inputParser was an input translation
     ip = inputParser;
     ip.addRequired('cache_name',                        @isstr);
 
@@ -18,13 +17,12 @@ function anchors = proposal_generate_anchors_caltech(cache_name, varargin)
     % scale list of anchors
     ip.addParamValue('scales',          2.^[3:5],       @ismatrix);    
     ip.addParamValue('ignore_cache',    false,          @islogical);
-    ip.addParamValue('exp_name',        'tmp',          @isstr);
     ip.parse(cache_name, varargin{:});
     opts = ip.Results;
 
 %%
     if ~opts.ignore_cache
-        anchor_cache_dir            = fullfile(pwd, 'output', opts.exp_name, 'rpn_cachedir', cache_name); 
+        anchor_cache_dir            = fullfile(pwd, 'output', 'rpn_cachedir', cache_name); 
                                       mkdir_if_missing(anchor_cache_dir);
         anchor_cache_file           = fullfile(anchor_cache_dir, 'anchors');
     end

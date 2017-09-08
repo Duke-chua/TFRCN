@@ -1,8 +1,8 @@
-function [image_roidb, bbox_means, bbox_stds] = proposal_prepare_image_roidb_caltech(conf, imdbs, roidbs, empty_image_sample_step, bbox_means, bbox_stds)
-% [image_roidb, bbox_means, bbox_stds] = proposal_prepare_image_roidb_caltech(conf, imdbs, roidbs, empty_image_sample_step, bbox_means, bbox_stds)
+function [image_roidb, bbox_means, bbox_stds] = proposal_prepare_image_roidb(conf, imdbs, roidbs, bbox_means, bbox_stds)
+% [image_roidb, bbox_means, bbox_stds] = proposal_prepare_image_roidb(conf, imdbs, roidbs, cache_img, bbox_means, bbox_stds)
 % --------------------------------------------------------
-% RPN_BF
-% Copyright (c) 2016, Liliang Zhang
+% Faster R-CNN
+% Copyright (c) 2015, Shaoqing Ren
 % Licensed under The MIT License [see LICENSE for details]
 % --------------------------------------------------------   
 
@@ -24,7 +24,7 @@ function [image_roidb, bbox_means, bbox_stds] = proposal_prepare_image_roidb_cal
             cellfun(@(x, y) ... // @(imdbs, roidbs)
                 arrayfun(@(z) ... //@([1:length(x.image_ids)])
                     struct('image_path', x.image_at(z), 'image_id', x.image_ids{z}, 'im_size', x.sizes(z, :), 'imdb_name', x.name, 'num_classes', x.num_classes, ...
-                    'boxes', y.rois(z).boxes(y.rois(z).gt, :), 'gt_ignores', y.rois(z).ignores,'class', y.rois(z).class(y.rois(z).gt, :), 'image', [], 'bbox_targets', []), ...
+                    'boxes', y.rois(z).boxes(y.rois(z).gt, :), 'class', y.rois(z).class(y.rois(z).gt, :), 'image', [], 'bbox_targets', []), ...
                 [1:length(x.image_ids)]', 'UniformOutput', true),...
             imdbs, roidbs, 'UniformOutput', false);
     else
@@ -32,45 +32,15 @@ function [image_roidb, bbox_means, bbox_stds] = proposal_prepare_image_roidb_cal
             cellfun(@(x, y) ... // @(imdbs, roidbs)
                 arrayfun(@(z) ... //@([1:length(x.image_ids)])
                     struct('image_path', x.image_at(z), 'image_id', x.image_ids{z}, 'im_size', x.sizes(z, :), 'imdb_name', x.name, ...
-                    'boxes', y.rois(z).boxes, 'gt_ignores', y.rois(z).ignores, 'class', y.rois(z).class, 'image', [], 'bbox_targets', []), ...
+                    'boxes', y.rois(z).boxes, 'class', y.rois(z).class, 'image', [], 'bbox_targets', []), ...
                 [1:length(x.image_ids)]', 'UniformOutput', true),...
             imdbs, roidbs, 'UniformOutput', false);
     end
    
     image_roidb = cat(1, image_roidb{:});
     
-    % skip some empty image to save memory
-    % empty_image_sample_step = 1 equals use each img
-    if empty_image_sample_step > 0
-        num_images = length(image_roidb);
-        keep_idxes = zeros(num_images, 1);        
-        keep_idxes(1:empty_image_sample_step:length(keep_idxes)) = 1;
-        % add the non-empty image
-        image_roidb_cell = num2cell(image_roidb, 2);
-        nonempty = 0;
-        for i = 1:num_images
-            %if ~isempty(image_roidb_cell{i}.boxes)
-            if ~isempty(find(image_roidb_cell{i}.gt_ignores == 0)) % check the gt_ignores
-                keep_idxes(i) = 1;
-                nonempty = nonempty+1;
-            end
-        end
-        clear image_roidb_cell;
-        fprintf('total (%d) = nonempty (%d) + empty (%d)\n', sum(keep_idxes), nonempty, sum(keep_idxes)-nonempty);
-        image_roidb = image_roidb(logical(keep_idxes));
-    end
-    
     % enhance roidb to contain bounding-box regression targets
     [image_roidb, bbox_means, bbox_stds] = append_bbox_regression_targets(conf, image_roidb, bbox_means, bbox_stds);
-    
-    % check 
-    for i = 1:length(image_roidb)
-        if ~isempty(find(image_roidb(i).gt_ignores < 1))
-            if (sum(image_roidb(i).overlaps{1}>=0.5)==0)
-                disp(['all ols < 0.5 warning: ' image_roidb(i).image_id, ' max ol = ', num2str(max(image_roidb(i).overlaps{1}))]);
-            end
-        end   
-    end
 end
 
 function [image_roidb, means, stds] = append_bbox_regression_targets(conf, image_roidb, means, stds)
@@ -80,37 +50,20 @@ function [image_roidb, means, stds] = append_bbox_regression_targets(conf, image
     % Infer number of classes from the number of columns in gt_overlaps
     image_roidb_cell = num2cell(image_roidb, 2);
     bbox_targets = cell(num_images, 1);
-    overlaps = cell(num_images, 1);
-        
     parfor i = 1:num_images
-%        tic_toc_print('prepare bbox regression target: %d / %d\n', i, num_images);
-        
         % for fcn, anchors are concated as [channel, height, width], where channel is the fastest dimension.
        [anchors, im_scales] = proposal_locate_anchors(conf, image_roidb_cell{i}.im_size);
         
        gt_rois = image_roidb_cell{i}.boxes;
        gt_labels = image_roidb_cell{i}.class;
        im_size = image_roidb_cell{i}.im_size;
-       
-       gt_ignores = image_roidb_cell{i}.gt_ignores;
-       
-       % add by zhangll, whether the gt_rois empty?
-       if isempty(gt_rois)
-           [bbox_targets{i}, overlaps{i}] = cellfun(@(x, y) ...
-               compute_targets(conf, gt_rois, gt_ignores, gt_labels,  x, image_roidb_cell{i}, y), ...
-               anchors, im_scales, 'UniformOutput', false);
-       else
-           [bbox_targets{i}, overlaps{i}] = cellfun(@(x, y) ...
-               compute_targets(conf, scale_rois(gt_rois, im_size, y), gt_ignores, gt_labels,  x, image_roidb_cell{i}, y), ...
-               anchors, im_scales, 'UniformOutput', false);
-       end
-       
-       
+       bbox_targets{i} = cellfun(@(x, y) ...
+           compute_targets(conf, scale_rois(gt_rois, im_size, y), gt_labels,  x, image_roidb_cell{i}, y), ...
+           anchors, im_scales, 'UniformOutput', false);
     end
     clear image_roidb_cell;
     for i = 1:num_images
         image_roidb(i).bbox_targets = bbox_targets{i};
-        image_roidb(i).overlaps = overlaps{i};
     end
     clear bbox_targets;
     
@@ -132,8 +85,8 @@ function [image_roidb, means, stds] = append_bbox_regression_targets(conf, image
            end
         end
 
-        means = bsxfun(@rdivide, sums, class_counts);
-        stds = (bsxfun(@minus, bsxfun(@rdivide, squared_sums, class_counts), means.^2)).^0.5;
+        means = bsxfun(@rdivide, sums, class_counts); % sum/class_counts
+        stds = (bsxfun(@minus, bsxfun(@rdivide, squared_sums, class_counts), means.^2)).^0.5; % squared_sums/class_counts - mean^2 
     end
     
     % Normalize targets
@@ -143,9 +96,9 @@ function [image_roidb, means, stds] = append_bbox_regression_targets(conf, image
             gt_inds = find(targets(:, 1) > 0);
             if ~isempty(gt_inds)
                 image_roidb(i).bbox_targets{j}(gt_inds, 2:end) = ...
-                    bsxfun(@minus, image_roidb(i).bbox_targets{j}(gt_inds, 2:end), means);
+                    bsxfun(@minus, image_roidb(i).bbox_targets{j}(gt_inds, 2:end), means); %target - means
                 image_roidb(i).bbox_targets{j}(gt_inds, 2:end) = ...
-                    bsxfun(@rdivide, image_roidb(i).bbox_targets{j}(gt_inds, 2:end), stds);
+                    bsxfun(@rdivide, image_roidb(i).bbox_targets{j}(gt_inds, 2:end), stds); %target / stds
             end
         end
     end
@@ -153,30 +106,19 @@ end
 
 function scaled_rois = scale_rois(rois, im_size, im_scale)
     im_size_scaled = round(im_size * im_scale);
-    scale = (im_size_scaled - 1) ./ (im_size - 1); % pixel shift
+    scale = (im_size_scaled - 1) ./ (im_size - 1);
     scaled_rois = bsxfun(@times, rois-1, [scale(2), scale(1), scale(2), scale(1)]) + 1;
 end
 
-function [bbox_targets, overlaps] = compute_targets(conf, gt_rois, gt_ignores, gt_labels, ex_rois, image_roidb, im_scale)
+function bbox_targets = compute_targets(conf, gt_rois, gt_labels, ex_rois, image_roidb, im_scale)
 % output: bbox_targets
 %   positive: [class_label, regression_label]
 %   ingore: [0, zero(regression_label)]
 %   negative: [-1, zero(regression_label)]
 
-    gt_rois_full = gt_rois;
-    gt_rois = gt_rois(gt_ignores~=1, :);
-    
-    if isempty(gt_rois_full)
-        overlaps = zeros(size(ex_rois, 1), 1, 'double');
-    else
-        ex_gt_full_overlaps = boxoverlap(ex_rois, gt_rois_full);
-        [overlaps, ~] = max(ex_gt_full_overlaps, [], 2); 
-    end
-
     if isempty(gt_rois)
         bbox_targets = zeros(size(ex_rois, 1), 5, 'double');
         bbox_targets(:, 1) = -1;
-
         return;
     end
 
@@ -185,18 +127,16 @@ function [bbox_targets, overlaps] = compute_targets(conf, gt_rois, gt_ignores, g
     assert(all(gt_labels > 0));
 
     % calc overlap between ex_rois(anchors) and gt_rois
-    ex_gt_overlaps = boxoverlap(ex_rois, gt_rois); % for fg
-    ex_gt_full_overlaps = boxoverlap(ex_rois, gt_rois_full);  % for bg
+    ex_gt_overlaps = boxoverlap(ex_rois, gt_rois);
     
     % drop anchors which run out off image boundaries, if necessary
-    if conf.drop_fg_boxes_runoff_image
+    if conf.drop_boxes_runoff_image
          contained_in_image = is_contain_in_image(ex_rois, round(image_roidb.im_size * im_scale));
-%          ex_gt_overlaps(~contained_in_image, :) = 0;
+         ex_gt_overlaps(~contained_in_image, :) = 0;
     end
 
     % for each ex_rois(anchors), get its max overlap with all gt_rois
-    [ex_max_overlaps, ex_assignment] = max(ex_gt_overlaps, [], 2); % for fg
-    [ex_full_max_overlaps, ex_full_assignment] = max(ex_gt_full_overlaps, [], 2); % for bg
+    [ex_max_overlaps, ex_assignment] = max(ex_gt_overlaps, [], 2);
     
     % for each gt_rois, get its max overlap with all ex_rois(anchors), the
     % ex_rois(anchors) are recorded in gt_assignment
@@ -217,13 +157,13 @@ function [bbox_targets, overlaps] = compute_targets(conf, gt_rois, gt_ignores, g
     % the logic for assigning labels to anchors can be satisfied by both the positive label and the negative label
     % When this happens, the code gives the positive label precedence to
     % pursue high recall
-    bg_inds = setdiff(find(ex_full_max_overlaps < conf.bg_thresh_hi & ex_full_max_overlaps >= conf.bg_thresh_lo), ...
+    bg_inds = setdiff(find(ex_max_overlaps < conf.bg_thresh_hi & ex_max_overlaps >= conf.bg_thresh_lo), ...
                     fg_inds);
     
-    if conf.drop_fg_boxes_runoff_image
+    if conf.drop_boxes_runoff_image
         contained_in_image_ind = find(contained_in_image);
         fg_inds = intersect(fg_inds, contained_in_image_ind);
-%         bg_inds = intersect(bg_inds, contained_in_image_ind);
+        bg_inds = intersect(bg_inds, contained_in_image_ind);
     end
                 
     % Find which gt ROI each ex ROI has max overlap with:

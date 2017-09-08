@@ -71,21 +71,14 @@ function aboxes = boxes_filter(aboxes, per_nms_topN, nms_overlap_thres, after_nm
     end
     % do nms
     if nms_overlap_thres > 0 && nms_overlap_thres < 1
-        if 0 %never run
+        if use_gpu
             for i = 1:length(aboxes)
-                tic_toc_print('weighted ave nms: %d / %d \n', i, length(aboxes));
-                aboxes{i} = get_keep_boxes(aboxes{i}, 0, nms_overlap_thres, 0.7); %author del this func
-            end 
+                tic_toc_print('nms: %d / %d \n', i, length(aboxes));
+                aboxes{i} = aboxes{i}(nms(aboxes{i}, nms_overlap_thres, use_gpu), :); % do nms
+            end
         else
-            if use_gpu
-                for i = 1:length(aboxes)
-                    tic_toc_print('nms: %d / %d \n', i, length(aboxes));
-                    aboxes{i} = aboxes{i}(nms(aboxes{i}, nms_overlap_thres, use_gpu), :); % do nms
-                end
-            else
-                parfor i = 1:length(aboxes)
-                    aboxes{i} = aboxes{i}(nms(aboxes{i}, nms_overlap_thres), :);
-                end
+            parfor i = 1:length(aboxes)
+                aboxes{i} = aboxes{i}(nms(aboxes{i}, nms_overlap_thres), :);
             end
         end
     end

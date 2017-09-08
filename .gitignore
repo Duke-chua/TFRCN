@@ -3,8 +3,7 @@ models/
 data/
 external/code3.2.1
 external/piotr-toolbox-kaist
-datasets/caltech/test
-datasets/caltech/train
+datasets/caltech
 datasets/kaist_visible/test
 datasets/kaist_visible/train
 datasets/kaist_lwir/test
