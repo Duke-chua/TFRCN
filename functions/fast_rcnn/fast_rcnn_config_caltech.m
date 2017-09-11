@@ -47,8 +47,20 @@ function conf = fast_rcnn_config_caltech(varargin)
     ip.addParamValue('test_nms',        0.3,            @isscalar);
     ip.addParamValue('test_binary',     false,          @islogical);
     
+    %% evaluating
+    ip.addParamValue('eval_mul',        false,          @islogical);
+    %[10.^(-2:.25:0)] reference points (see bbGt>compRoc)
+    ip.addParamValue('eval_ref',        10.^(-2:.25:0), @isvector);
+    
     ip.parse(varargin{:});
     conf = ip.Results;
+
+    % for eval_pLoad
+    pLoad = {'lbls',{'person'},'ilbls',{'people'},'squarify',{3,.41}};
+    pLoad = [pLoad 'hRng',[50 inf],'vRng',[.65 1],'xRng',[5 635],'yRng',[5 475]];
+
+    conf.eval_pLoad = pLoad;
+
     
     % if image_means is a file, load it
     if ischar(conf.image_means)

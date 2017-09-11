@@ -1,4 +1,4 @@
-function mAP = fast_rcnn_test_caltech(conf, imdb, roidb, varargin)
+function aboxes = fast_rcnn_test_caltech(conf, imdb, roidb, varargin)
 % mAP = fast_rcnn_test(conf, imdb, roidb, varargin)
 % --------------------------------------------------------
 % Fast R-CNN
@@ -71,14 +71,6 @@ function mAP = fast_rcnn_test_caltech(conf, imdb, roidb, varargin)
         disp('conf:');
         disp(conf);
         
-        %heuristic: keep an average of 40 detections per class per images prior to NMS
-        max_per_set = 40 * num_images;
-        % heuristic: keep at most 100 detection per class per image prior to NMS
-        max_per_image = 100;
-        % detection thresold for each class (this is adaptively set based on the max_per_set constraint)
-        thresh = -inf * ones(num_classes, 1);
-        % top_scores will hold one minheap of scores per class (used to enforce the max_per_set constraint)
-        top_scores = cell(num_classes, 1);
         % all detections are collected into:
         %    all_boxes[cls][image] = N x 5 array of detections in
         %    (x1, y1, x2, y2, score)
@@ -101,10 +93,9 @@ function mAP = fast_rcnn_test_caltech(conf, imdb, roidb, varargin)
             [boxes, scores] = fast_rcnn_im_detect(conf, caffe_net, im, d.boxes, max_rois_num_in_gpu);
 
             for j = 1:num_classes
-                inds = find(~d.gt & scores(:, j) > thresh(j));
+                inds = find(~d.gt);
                 if ~isempty(inds)
                     [~, ord] = sort(scores(inds, j), 'descend');
-                    ord = ord(1:min(length(ord), max_per_image));
                     inds = inds(ord);
                     cls_boxes = boxes(inds, (1+(j-1)*4):((j)*4));
                     cls_scores = scores(inds, j);
@@ -118,75 +109,15 @@ function mAP = fast_rcnn_test_caltech(conf, imdb, roidb, varargin)
 
             fprintf(' time: %.3fs\n', toc(th));  
 
-            if mod(count, 1000) == 0
-                for j = 1:num_classes
-                [aboxes{j}, box_inds{j}, thresh(j)] = ...
-                    keep_top_k(aboxes{j}, box_inds{j}, i, max_per_set, thresh(j));
-                end
-                disp(thresh);
-            end    
         end
 
-        for j = 1:num_classes
-            [aboxes{j}, box_inds{j}, thresh(j)] = ...
-                keep_top_k(aboxes{j}, box_inds{j}, i, max_per_set, thresh(j));
-        end
-        disp(thresh);
-
-        for i = 1:num_classes
-
-            top_scores{i} = sort(top_scores{i}, 'descend');  
-            if (length(top_scores{i}) > max_per_set)
-                thresh(i) = top_scores{i}(max_per_set);
-            end
-
-            % go back through and prune out detections below the found threshold
-            for j = 1:length(imdb.image_ids)
-                if ~isempty(aboxes{i}{j})
-                    I = find(aboxes{i}{j}(:,end) < thresh(i));
-                    aboxes{i}{j}(I,:) = [];
-                    box_inds{i}{j}(I,:) = [];
-                end
-            end
-
-            save_file = fullfile(cache_dir, [imdb.classes{i} '_boxes_' imdb.name opts.suffix]);
-            boxes = aboxes{i};
-            inds = box_inds{i};
-            save(save_file, 'boxes', 'inds');
-            clear boxes inds;
-        end
         fprintf('test all images in %f seconds.\n', toc(t_start));
         
         caffe.reset_all(); 
         rng(prev_rng);
     end
 
-    % ------------------------------------------------------------------------
-    % Peform AP evaluation
-    % ------------------------------------------------------------------------
-
-    if isequal(imdb.eval_func, @imdb_eval_voc)
-        for model_ind = 1:num_classes
-          cls = imdb.classes{model_ind};
-          res(model_ind) = imdb.eval_func(cls, aboxes{model_ind}, imdb, opts.cache_name, opts.suffix);
-        end
-    else
-    % ilsvrc
-        res = imdb.eval_func(aboxes, imdb, opts.cache_name, opts.suffix);
-    end
-
-    if ~isempty(res)
-        fprintf('\n~~~~~~~~~~~~~~~~~~~~\n');
-        fprintf('Results:\n');
-        aps = [res(:).ap]' * 100;
-        disp(aps);
-        disp(mean(aps));
-        fprintf('~~~~~~~~~~~~~~~~~~~~\n');
-        mAP = mean(aps);
-    else
-        mAP = nan;
-    end
-    
+    save(fullfile(cache_dir, ['fastrcnn_boxes_' imdb.name opts.suffix]),'aboxes', '-v7.3');
     diary off;
 end
 

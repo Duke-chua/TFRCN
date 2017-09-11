@@ -7,14 +7,7 @@ switch usage
     case {'test'}
         dataset.imdb_test     = imdb_from_scut('./datasets/scut', 'test', use_flip) ;
         dataset.roidb_test    = dataset.imdb_test.roidb_func(dataset.imdb_test, use_flip);
-    case {'testall'}
-        dataset.imdb_test     = imdb_from_scut('./datasets/scut', 'scut', use_flip) ;
-        dataset.roidb_test    = dataset.imdb_test.roidb_func(dataset.imdb_test, use_flip);
-    case {'scut02'}
-        dataset.imdb_test     = imdb_from_scut('./datasets/scut', 'scut02', use_flip) ;
-        dataset.roidb_test    = dataset.imdb_test.roidb_func(dataset.imdb_test, use_flip);
     otherwise
         error('usage = ''train'' or ''test''');
 end
-
 end

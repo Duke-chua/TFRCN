@@ -20,7 +20,7 @@ anno_path = ['./datasets/caltech/' roidb.name '/annotations'];
 % prop_path = ['./datasets/caltech/' roidb.name '/proposals'];
 
 addpath(genpath('./external/code3.2.1'));
-pLoad={'lbls',{'person'},'ilbls',{'people'},'squarify',{3,.41}};
+pLoad = {'lbls',{'person'},'ilbls',{'people'},'squarify',{3,.41}};
 pLoad = [pLoad 'hRng',[50 inf], 'vRng',[1 1] ];
 
 if flip
@@ -35,13 +35,8 @@ catch
   roidb.name = imdb.name;
 
   fprintf('Loading region proposals...');
-%   regions = [];
 
   regions = [];
-  
-%   if exist(prop_path, 'dir')
-%       regions = load_proposals(imdb, prop_path, pLoad);
-%   end
   
   fprintf('done\n');
   if isempty(regions)
@@ -113,6 +108,9 @@ catch
   
   fprintf('num_gt / num_ignore %d / %d \n', num_gt_no_ignores, num_gts);
 end
+roidb.anno_path = anno_path;
+roidb.pLoad = pLoad;
+end
 
 
 % ------------------------------------------------------------------------
@@ -144,3 +142,4 @@ rec.feat = [];
 rec.class = uint8(cat(1, gt_classes, zeros(num_boxes, 1)));
 
 rec.ignores = ignores;
+end
