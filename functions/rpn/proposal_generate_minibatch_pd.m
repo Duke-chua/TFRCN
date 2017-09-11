@@ -1,5 +1,5 @@
-function [input_blobs, random_scale_inds] = proposal_generate_minibatch_caltech(conf, image_roidb)
-% [input_blobs, random_scale_inds] = proposal_generate_minibatch_caltech(conf, image_roidb)
+function [input_blobs, random_scale_inds] = proposal_generate_minibatch_pd(conf, image_roidb)
+% [input_blobs, random_scale_inds] = proposal_generate_minibatch_pd(conf, image_roidb)
 % --------------------------------------------------------
 % RPN_BF
 % Copyright (c) 2016, Liliang Zhang

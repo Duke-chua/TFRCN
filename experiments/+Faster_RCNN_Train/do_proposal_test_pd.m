@@ -1,5 +1,5 @@
-function [aboxes,miss] = do_proposal_test_caltech(conf, model_stage, imdb, roidb)
-    aboxes                      = proposal_test_caltech(conf, imdb, ...
+function [aboxes,miss] = do_proposal_test_pd(conf, model_stage, imdb, roidb)
+    aboxes                      = proposal_test_pd(conf, imdb, ...
                                         'net_def_file',     model_stage.test_net_def_file, ...
                                         'net_file',         model_stage.output_model_file, ...
                                         'cache_name',       model_stage.cache_name); 
@@ -22,7 +22,7 @@ function [aboxes,miss] = do_proposal_test_caltech(conf, model_stage, imdb, roidb
     fprintf('gt recall rate = %.4f\n', gt_re_num / gt_num);
 
     %% output the results
-    fprintf('Preparing the results for Caltech evaluation ...');
+    fprintf('Preparing the results for evaluation ...');
     cache_dir = fullfile(pwd, 'output', conf.exp_name, 'rpn_cachedir', model_stage.cache_name);
     res_boxes = aboxes;
     mkdir_if_missing(fullfile(cache_dir, conf.method_name));
@@ -45,7 +45,7 @@ function [aboxes,miss] = do_proposal_test_caltech(conf, model_stage, imdb, roidb
             mkdir_if_missing(fullfile(cache_dir, conf.method_name, sstr{1}));
             fid = fopen(fullfile(cache_dir, conf.method_name, sstr{1}, [sstr{2} '.txt']), 'a');
             % transform [x1 y1 x2 y2] to [x y w h], for matching the
-            % caltech evaluation protocol
+            % evaluation protocol
             res_boxes{i}(:, 3) = res_boxes{i}(:, 3) - res_boxes{i}(:, 1); % h
             res_boxes{i}(:, 4) = res_boxes{i}(:, 4) - res_boxes{i}(:, 2); % w
             for j = 1:size(res_boxes{i}, 1)
@@ -77,7 +77,7 @@ function [aboxes,miss] = do_proposal_test_caltech(conf, model_stage, imdb, roidb
     
     % copy results to eval folder and run eval script to get figure.
     folder1 = fullfile(pwd, 'output', conf.exp_name, 'rpn_cachedir', model_stage.cache_name, conf.method_name);
-    folder2 = fullfile(pwd, 'external', 'code3.2.1', 'data-USA', 'res', conf.method_name);
+    folder2 = fullfile(pwd, 'external', 'code3.2.1', ['data-' conf.datasets], 'res', conf.method_name);
     mkdir_if_missing(folder2);
     copyfile(folder1, folder2);
 

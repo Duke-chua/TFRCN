@@ -1,5 +1,5 @@
-function anchors = proposal_generate_anchors_caltech(cache_name, varargin)
-% anchors = proposal_generate_anchors_caltech(cache_name, varargin)
+function anchors = proposal_generate_anchors_pd(cache_name, varargin)
+% anchors = proposal_generate_anchors_pd(cache_name, varargin)
 % --------------------------------------------------------
 % RPN_BF
 % Copyright (c) 2015, Liliang Zhang

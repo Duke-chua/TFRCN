@@ -1,6 +1,6 @@
-function [im_blob, rois_blob, labels_blob, bbox_targets_blob, bbox_loss_blob] = fast_rcnn_get_minibatch_caltech(conf, image_roidb)
+function [im_blob, rois_blob, labels_blob, bbox_targets_blob, bbox_loss_blob] = fast_rcnn_get_minibatch_pd(conf, image_roidb)
 % [im_blob, rois_blob, labels_blob, bbox_targets_blob, bbox_loss_blob] ...
-%    = fast_rcnn_get_minibatch(conf, image_roidb)
+%    = fast_rcnn_get_minibatch_pd(conf, image_roidb)
 % --------------------------------------------------------
 % Fast R-CNN
 % Reimplementation based on Python Fast R-CNN (https://github.com/rbgirshick/fast-rcnn)

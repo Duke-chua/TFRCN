@@ -38,9 +38,9 @@ dataset                     = Dataset.kaist_lwir_test(dataset, 'test',false);
 
 % %% -------------------- TRAIN --------------------
 % conf
-conf_proposal               = proposal_config_kaist('image_means', model.mean_image, 'feat_stride', model.feat_stride);
+conf_proposal               = proposal_config(model);
 % set cache folder for each stage
-model                       = Faster_RCNN_Train.set_cache_folder_kaist_lwir(cache_base_proposal, model);
+model                       = Faster_RCNN_Train.set_cache_folder_pd(cache_base_proposal, model);
 % generate anchors and pre-calculate output size of rpn network 
 conf_proposal.exp_name = exp_name;
 [conf_proposal.anchors, conf_proposal.output_width_map, conf_proposal.output_height_map] ...
@@ -49,13 +49,12 @@ conf_proposal.exp_name = exp_name;
                         
 %%  train
 fprintf('\n***************\nstage one RPN train\n***************\n');
-model.stage1_rpn            = Faster_RCNN_Train.do_proposal_train_kaist_lwir(conf_proposal, dataset, model.stage1_rpn, opts.do_val);
+model.stage1_rpn            = Faster_RCNN_Train.do_proposal_train_pd(conf_proposal, dataset, model.stage1_rpn, opts.do_val);
 % model.stage1_rpn.output_model_file = '/mnt/RD/Code/ubuntu/RPN_BF_FIR/output/VGG16_kaist_visible/rpn_cachedir/rpn_kaist_visible_vgg_16layers_stage1_rpn/final';
 %% test
 fprintf('\n***************\nstage one RPN test\n***************\n');
-cache_name = 'RPN_kaist_lwir'; % output/exp_name/rpn_cahedir/cache_name
-method_name = 'RPN-ped'; % external/piotr-toolbox-kaist/data-XXXX/res/method_name
-Faster_RCNN_Train.do_proposal_test_kaist_lwir(conf_proposal, model.stage1_rpn, dataset.imdb_test, dataset.roidb_test, cache_name, method_name);
+conf_proposal.method_name = 'RPN-ped'; % external/piotr-toolbox-kaist/data-XXXX/res/method_name
+Faster_RCNN_Train.do_proposal_test_pd(conf_proposal, model.stage1_rpn, dataset.imdb_test, dataset.roidb_test);
 
 end
 
@@ -64,9 +63,24 @@ function [anchors, output_width_map, output_height_map] = proposal_prepare_ancho
 % cache_name            - [] rpn model name
 % test_net_def_file     - [] address model prototxt file address
     [output_width_map, output_height_map] ...                           
-                                = proposal_calc_output_size_caltech(conf, test_net_def_file);
-    anchors                = proposal_generate_anchors_caltech(cache_name, ...
+                                = proposal_calc_output_size_pd(conf, test_net_def_file);
+    anchors                = proposal_generate_anchors_pd(cache_name, ...
                                     'scales',  2.6*(1.3.^(0:8)), ... % anchors scales  
                                     'ratios', [1 / 0.41], ... % pedestrain high with ratio
                                     'exp_name', conf.exp_name);
+end
+
+function conf = proposal_config(model)
+    conf = proposal_config_pd('image_means', model.mean_image,...
+                              'feat_stride', model.feat_stride ...
+                             ,'scales',        480  ...
+                             ,'max_size',      640  ...
+                             ,'test_scales',   480  ...
+                             ,'test_max_size', 640  ...
+                             ,'datasets',     'kaist' ...
+                              );
+    % for eval_pLoad
+    pLoad={'lbls',{'person'},'ilbls',{'people','person?','cyclist'},'squarify',{3,.41}}; % copy from acfDemoKAIST.m and add squarify see bbApply.m
+    pLoad = [pLoad 'hRng',[55 inf], 'vType', {'none','partial'},'xRng',[5 635],'yRng',[5 475]]; % copy from acfDemoKAIST.m
+    conf.eval_pLoad = pLoad;   
 end

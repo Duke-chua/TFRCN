@@ -1,4 +1,4 @@
-function model = VGG16_for_Faster_RCNN_caltech(model)
+function model = VGG16_for_Faster_RCNN(model)
 % VGG 16layers (only finetuned from conv3_1)
 
 model.mean_image                                = fullfile(pwd, 'models', 'Faster', 'pre_trained_models', 'vgg_16layers', 'mean_image');

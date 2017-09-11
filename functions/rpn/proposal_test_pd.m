@@ -1,5 +1,5 @@
-function aboxes = proposal_test_kaist_visible(conf, imdb, varargin)
-% aboxes = proposal_test_kaist_visible(conf, imdb, varargin)
+function aboxes = proposal_test_pd(conf, imdb, varargin)
+% aboxes = proposal_test_pd(conf, imdb, varargin)
 % --------------------------------------------------------
 % RPN_BF
 % Copyright (c) 2016, Liliang Zhang
@@ -77,7 +77,7 @@ function aboxes = proposal_test_kaist_visible(conf, imdb, varargin)
             th = tic;
             im = imread(imdb.image_at(i));
 
-            [boxes, scores, abox_deltas{i}, aanchors{i}, ascores{i}] = proposal_im_detect_caltech(conf, caffe_net, im);
+            [boxes, scores, abox_deltas{i}, aanchors{i}, ascores{i}] = proposal_im_detect_pd(conf, caffe_net, im);
             
             fprintf(' time: %.3fs\n', toc(th));  
 

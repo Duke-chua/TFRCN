@@ -1,9 +1,9 @@
-function aboxes = fast_rcnn_test_caltech(conf, imdb, roidb, varargin)
-% mAP = fast_rcnn_test(conf, imdb, roidb, varargin)
+function aboxes = fast_rcnn_test_pd(conf, imdb, roidb, varargin)
+% mAP = fast_rcnn_test_pd(conf, imdb, roidb, varargin)
 % --------------------------------------------------------
 % Fast R-CNN
 % Reimplementation based on Python Fast R-CNN (https://github.com/rbgirshick/fast-rcnn)
-% Copyright (c) 2015, Shaoqing Ren
+% Copyright (c) 2017, Zhewei Xu
 % Licensed under The MIT License [see LICENSE for details]
 % --------------------------------------------------------
 
@@ -91,7 +91,8 @@ function aboxes = fast_rcnn_test_caltech(conf, imdb, roidb, varargin)
             im = imread(imdb.image_at(i));
 
             [boxes, scores] = fast_rcnn_im_detect(conf, caffe_net, im, d.boxes, max_rois_num_in_gpu);
-
+            
+            % sort result and exclude gt
             for j = 1:num_classes
                 inds = find(~d.gt);
                 if ~isempty(inds)
@@ -106,9 +107,14 @@ function aboxes = fast_rcnn_test_caltech(conf, imdb, roidb, varargin)
                     box_inds{j}{i} = box_inds{j}{i};
                 end
             end
+            fprintf(' time: %.3fs\n', toc(th));
+        end
 
-            fprintf(' time: %.3fs\n', toc(th));  
-
+        % to save aboxes to file
+        for i = 1:num_classes
+            boxes = aboxes{i};
+            save(fullfile(cache_dir, [imdb.classes{i} '_boxes_' imdb.name opts.suffix]),'boxes', '-v7.3');
+            clear boxes;
         end
 
         fprintf('test all images in %f seconds.\n', toc(t_start));
@@ -116,8 +122,6 @@ function aboxes = fast_rcnn_test_caltech(conf, imdb, roidb, varargin)
         caffe.reset_all(); 
         rng(prev_rng);
     end
-
-    save(fullfile(cache_dir, ['fastrcnn_boxes_' imdb.name opts.suffix]),'aboxes', '-v7.3');
     diary off;
 end
 
@@ -143,28 +147,6 @@ function max_rois_num = check_gpu_memory(conf, caffe_net)
             
         if gpuInfo.FreeMemory < 2 * 10^9  % 2GB for safety
             break;
-        end
-    end
-
-end
-
-
-% ------------------------------------------------------------------------
-function [boxes, box_inds, thresh] = keep_top_k(boxes, box_inds, end_at, top_k, thresh)
-% ------------------------------------------------------------------------
-    % Keep top K
-    X = cat(1, boxes{1:end_at});
-    if isempty(X)
-        return;
-    end
-    scores = sort(X(:,end), 'descend');
-    thresh = scores(min(length(scores), top_k));
-    for image_index = 1:end_at
-        if ~isempty(boxes{image_index})
-            bbox = boxes{image_index};
-            keep = find(bbox(:,end) >= thresh);
-            boxes{image_index} = bbox(keep,:);
-            box_inds{image_index} = box_inds{image_index}(keep);
         end
     end
 end

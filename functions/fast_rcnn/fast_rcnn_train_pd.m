@@ -1,5 +1,5 @@
-function save_model_path = fast_rcnn_train_caltech(conf, imdb_train, roidb_train, varargin)
-% save_model_path = fast_rcnn_train(conf, imdb_train, roidb_train, varargin)
+function save_model_path = fast_rcnn_train_pd(conf, imdb_train, roidb_train, varargin)
+% save_model_path = fast_rcnn_train_pd(conf, imdb_train, roidb_train, varargin)
 % --------------------------------------------------------
 % Fast R-CNN
 % Reimplementation based on Python Fast R-CNN (https://github.com/rbgirshick/fast-rcnn)
@@ -20,9 +20,9 @@ function save_model_path = fast_rcnn_train_caltech(conf, imdb_train, roidb_train
     ip.addParamValue('val_interval',        2000,               @isscalar); 
     ip.addParamValue('snapshot_interval',   10000,              @isscalar);
     ip.addParamValue('solver_def_file',     fullfile(pwd, 'models', 'Zeiler_conv5', 'solver.prototxt'), ...
-                                                        @isstr);
+                                                                @isstr);
     ip.addParamValue('net_file',            fullfile(pwd, 'models', 'Zeiler_conv5', 'Zeiler_conv5'), ...
-                                                        @isstr);
+                                                                @isstr);
     ip.addParamValue('cache_name',          'Zeiler_conv5',     @isstr);
     ip.addParamValue('exp_name',          'tmp',                @isstr);
     ip.addParamValue('empty_image_sample_step',    1,           @isscalar);
@@ -70,13 +70,13 @@ function save_model_path = fast_rcnn_train_caltech(conf, imdb_train, roidb_train
 %% making tran/val data
     fprintf('Preparing training data...');
     [image_roidb_train, bbox_means, bbox_stds]...
-                            = fast_rcnn_prepare_image_roidb_caltech(conf, opts.imdb_train, opts.roidb_train);
+                            = fast_rcnn_prepare_image_roidb_pd(conf, opts.imdb_train, opts.roidb_train);
     fprintf('Done.\n');
     
     if opts.do_val
         fprintf('Preparing validation data...');
         [image_roidb_val]...
-                                = fast_rcnn_prepare_image_roidb_caltech(conf, opts.imdb_val, opts.roidb_val, bbox_means, bbox_stds);
+                                = fast_rcnn_prepare_image_roidb_pd(conf, opts.imdb_val, opts.roidb_val, bbox_means, bbox_stds);
         fprintf('Done.\n');
 
         % fix validation data
@@ -101,7 +101,7 @@ function save_model_path = fast_rcnn_train_caltech(conf, imdb_train, roidb_train
         % generate minibatch training data
         [shuffled_inds, sub_db_inds] = generate_random_minibatch(shuffled_inds, image_roidb_train, conf.ims_per_batch);
         [im_blob, rois_blob, labels_blob, bbox_targets_blob, bbox_loss_weights_blob] = ...
-            fast_rcnn_get_minibatch_caltech(conf, image_roidb_train(sub_db_inds));
+            fast_rcnn_get_minibatch_pd(conf, image_roidb_train(sub_db_inds));
 
         net_inputs = {im_blob, rois_blob, labels_blob, bbox_targets_blob, bbox_loss_weights_blob};
         caffe_solver.net.reshape_as_input(net_inputs);
@@ -120,7 +120,7 @@ function save_model_path = fast_rcnn_train_caltech(conf, imdb_train, roidb_train
                 for i = 1:length(shuffled_inds_val)
                     sub_db_inds = shuffled_inds_val{i};
                     [im_blob, rois_blob, labels_blob, bbox_targets_blob, bbox_loss_weights_blob] = ...
-                        fast_rcnn_get_minibatch_caltech(conf, image_roidb_val(sub_db_inds));
+                        fast_rcnn_get_minibatch_pd(conf, image_roidb_val(sub_db_inds));
 
                     % Reshape net's input blobs
                     net_inputs = {im_blob, rois_blob, labels_blob, bbox_targets_blob, bbox_loss_weights_blob};

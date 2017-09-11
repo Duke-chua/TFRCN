@@ -1,4 +1,4 @@
-function conf = fast_rcnn_config_caltech(varargin)
+function conf = fast_rcnn_config_pd(varargin)
 % conf = fast_rcnn_config(varargin)
 % Fast R-CNN configuration
 % --------------------------------------------------------
@@ -54,12 +54,6 @@ function conf = fast_rcnn_config_caltech(varargin)
     
     ip.parse(varargin{:});
     conf = ip.Results;
-
-    % for eval_pLoad
-    pLoad = {'lbls',{'person'},'ilbls',{'people'},'squarify',{3,.41}};
-    pLoad = [pLoad 'hRng',[50 inf],'vRng',[.65 1],'xRng',[5 635],'yRng',[5 475]];
-
-    conf.eval_pLoad = pLoad;
 
     
     % if image_means is a file, load it

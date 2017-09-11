@@ -1,5 +1,5 @@
-function [output_width_map, output_height_map] = proposal_calc_output_size_caltech(conf, test_net_def_file)
-% [output_width_map, output_height_map] = proposal_calc_output_size_caltech(conf, test_net_def_file)
+function [output_width_map, output_height_map] = proposal_calc_output_size_pd(conf, test_net_def_file)
+% [output_width_map, output_height_map] = proposal_calc_output_size_pd(conf, test_net_def_file)
 % --------------------------------------------------------
 % RPN_BF
 % Copyright (c) 2016, Liliang Zhang

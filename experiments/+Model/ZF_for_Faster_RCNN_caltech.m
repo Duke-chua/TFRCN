@@ -20,10 +20,6 @@ model.stage1_fast_rcnn.solver_def_file          = fullfile(pwd, 'models', 'Faste
 model.stage1_fast_rcnn.test_net_def_file        = fullfile(pwd, 'models', 'Faster', 'fast_rcnn_prototxts', 'ZF', 'test.prototxt');
 model.stage1_fast_rcnn.init_net_file            = model.pre_trained_net_file;
 
-% fast rcnn setting
-model.stage1_fast_rcnn.nms.per_nms_topN         = 6000; % to speed up nms
-model.stage1_fast_rcnn.nms.nms_overlap_thres    = 0.7;
-model.stage1_fast_rcnn.nms.after_nms_topN       = 300;
 
 %% stage 2 rpn, only finetune fc layers
 model.stage2_rpn.solver_def_file                = fullfile(pwd, 'models', 'Faster', 'rpn_prototxts', 'ZF_fc6', 'solver_30k40k.prototxt');

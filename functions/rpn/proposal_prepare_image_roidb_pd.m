@@ -1,5 +1,5 @@
-function [image_roidb, bbox_means, bbox_stds] = proposal_prepare_image_roidb_caltech(conf, imdbs, roidbs, empty_image_sample_step, bbox_means, bbox_stds)
-% [image_roidb, bbox_means, bbox_stds] = proposal_prepare_image_roidb_caltech(conf, imdbs, roidbs, empty_image_sample_step, bbox_means, bbox_stds)
+function [image_roidb, bbox_means, bbox_stds] = proposal_prepare_image_roidb_pd(conf, imdbs, roidbs, empty_image_sample_step, bbox_means, bbox_stds)
+% [image_roidb, bbox_means, bbox_stds] = proposal_prepare_image_roidb_pd(conf, imdbs, roidbs, empty_image_sample_step, bbox_means, bbox_stds)
 % --------------------------------------------------------
 % RPN_BF
 % Copyright (c) 2016, Liliang Zhang

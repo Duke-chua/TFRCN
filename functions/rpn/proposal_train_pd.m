@@ -1,5 +1,5 @@
-function save_model_path = proposal_train_scut(conf, imdb_train, roidb_train, varargin)
-% save_model_path = proposal_train_scut(conf, imdb_train, roidb_train, varargin)
+function save_model_path = proposal_train_pd(conf, imdb_train, roidb_train, varargin)
+% save_model_path = proposal_train_pd(conf, imdb_train, roidb_train, varargin)
 % --------------------------------------------------------
 % RPN_BF
 % Copyright (c) 2016, Liliang Zhang
@@ -87,13 +87,13 @@ function save_model_path = proposal_train_scut(conf, imdb_train, roidb_train, va
 %% making tran/val data
     fprintf('Preparing training data...');
     [image_roidb_train, bbox_means, bbox_stds]...
-                            = proposal_prepare_image_roidb_caltech(conf, opts.imdb_train, opts.roidb_train, opts.empty_image_sample_step);
+                            = proposal_prepare_image_roidb_pd(conf, opts.imdb_train, opts.roidb_train, opts.empty_image_sample_step);
     fprintf('Done.\n');
     
     if opts.do_val
         fprintf('Preparing validation data...');
         [image_roidb_val]...
-                                = proposal_prepare_image_roidb_caltech(conf, opts.imdb_val, opts.roidb_val, opts.empty_image_sample_step, bbox_means, bbox_stds);
+                                = proposal_prepare_image_roidb_pd(conf, opts.imdb_val, opts.roidb_val, opts.empty_image_sample_step, bbox_means, bbox_stds);
         fprintf('Done.\n');
 
         % fix validation data
@@ -108,7 +108,7 @@ function save_model_path = proposal_train_scut(conf, imdb_train, roidb_train, va
      
 %% -------------------- Training -------------------- 
 
-    proposal_generate_minibatch_fun = @proposal_generate_minibatch_caltech;
+    proposal_generate_minibatch_fun = @proposal_generate_minibatch_pd;
 
     % training
     shuffled_inds = [];

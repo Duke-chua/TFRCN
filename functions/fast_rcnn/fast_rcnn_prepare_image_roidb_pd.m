@@ -1,5 +1,5 @@
-function [image_roidb, bbox_means, bbox_stds] = fast_rcnn_prepare_image_roidb_caltech(conf, imdbs, roidbs, bbox_means, bbox_stds)
-% [image_roidb, bbox_means, bbox_stds] = fast_rcnn_prepare_image_roidb(conf, imdbs, roidbs, cache_img, bbox_means, bbox_stds)
+function [image_roidb, bbox_means, bbox_stds] = fast_rcnn_prepare_image_roidb_pd(conf, imdbs, roidbs, bbox_means, bbox_stds)
+% [image_roidb, bbox_means, bbox_stds] = fast_rcnn_prepare_image_roidb_pd(conf, imdbs, roidbs, cache_img, bbox_means, bbox_stds)
 %   Gather useful information from imdb and roidb
 %   pre-calculate mean (bbox_means) and std (bbox_stds) of the regression
 %   term for normalization
@@ -57,7 +57,7 @@ function [image_roidb, means, stds] = append_bbox_regression_targets(conf, image
         
     if ~(exist('means', 'var') && ~isempty(means) && exist('stds', 'var') && ~isempty(stds))
         % Compute values needed for means and stds
-        % var(x) = E(x^2) - E(x)^2s
+        % var(x) = E(x^2) - E(x)^2
         class_counts = zeros(num_classes, 1) + eps;
         sums = zeros(num_classes, 4);
         squared_sums = zeros(num_classes, 4);
@@ -135,7 +135,8 @@ function [bbox_targets, is_valid] = compute_targets(conf, rois, overlap, gt_igno
     
     % Select foreground ROIs as those with >= fg_thresh overlap
     is_fg = max_overlaps >= conf.fg_thresh;
-    is_fg(gt_inds_full(gt_ignores==1)) = false; % ignores gt are not fg
+    % ignores gt are not fg
+    is_fg(gt_inds_full(gt_ignores==1)) = false;
     % Select background ROIs as those within [bg_thresh_lo, bg_thresh_hi)
     is_bg = max_overlaps < conf.bg_thresh_hi & max_overlaps >= conf.bg_thresh_lo;
     

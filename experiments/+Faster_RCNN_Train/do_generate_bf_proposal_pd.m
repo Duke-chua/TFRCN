@@ -1,4 +1,4 @@
-function roidb_BF = do_generate_bf_proposal_kaist_lwir(conf, model_stage, imdb, roidb)
+function roidb_BF = do_generate_bf_proposal_pd(conf, model_stage, imdb, roidb)
     
     cache_dir = fullfile(pwd, 'output', conf.exp_name, 'rpn_cachedir', model_stage.cache_name, imdb.name);
     save_roidb_name = fullfile(cache_dir, [ 'roidb_' imdb.name '_BF.mat']);
@@ -9,7 +9,7 @@ function roidb_BF = do_generate_bf_proposal_kaist_lwir(conf, model_stage, imdb, 
         return;
     end
     
-    aboxes                      = proposal_test_kaist_lwir(conf, imdb, ...
+    aboxes                      = proposal_test_pd(conf, imdb, ...
                                         'net_def_file',     model_stage.test_net_def_file, ...
                                         'net_file',         model_stage.output_model_file, ...
                                         'cache_name',       model_stage.cache_name); 

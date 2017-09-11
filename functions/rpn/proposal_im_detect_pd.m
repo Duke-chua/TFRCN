@@ -1,4 +1,4 @@
-function [pred_boxes, scores, box_deltas_, anchors_, scores_] = proposal_im_detect_caltech(conf, caffe_net, im)
+function [pred_boxes, scores, box_deltas_, anchors_, scores_] = proposal_im_detect_pd(conf, caffe_net, im)
 % [pred_boxes, scores, box_deltas_, anchors_, scores_] = proposal_im_detect_caltech(conf, caffe_net, im)
 % --------------------------------------------------------
 % RPN_BF
