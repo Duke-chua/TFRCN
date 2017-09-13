@@ -14,7 +14,7 @@ function [aboxes,miss] = do_fast_rcnn_test_pd(conf, model_stage, imdb, roidb, ig
     diary on;
     %% nms
     fprintf('Doing nms ... \n'); 
-    aboxes                      = boxes_filter(aboxes, -1, 0.5, -1, conf.use_gpu);
+    aboxes                      = boxes_filter(aboxes, model_stage.nms.per_nms_topN, model_stage.nms.nms_overlap_thres, model_stage.nms.after_nms_topN, conf.use_gpu);
     aboxes                      = boxes_thres(aboxes, 40);
     %% eval the gt recall
     gt_num = 0;
@@ -31,7 +31,7 @@ function [aboxes,miss] = do_fast_rcnn_test_pd(conf, model_stage, imdb, roidb, ig
     fprintf('gt recall rate = %.4f\n', gt_re_num / gt_num);
     
     %% eval the roc
-    fprintf('Preparing the results for Caltech evaluation ...');
+    fprintf('Preparing the results for evaluation ...');
     cache_dir = fullfile(pwd, 'output', conf.exp_name, 'fast_rcnn_cachedir', model_stage.cache_name);
     res_boxes = aboxes;
     mkdir_if_missing(fullfile(cache_dir, conf.method_name));
@@ -86,7 +86,7 @@ function [aboxes,miss] = do_fast_rcnn_test_pd(conf, model_stage, imdb, roidb, ig
 
     % copy results to eval folder and run eval script to get figure.
     folder1 = fullfile(pwd, 'output', conf.exp_name, 'fast_rcnn_cachedir', model_stage.cache_name, conf.method_name);
-    folder2 = fullfile(pwd, 'external', 'code3.2.1', 'data-USA', 'res', conf.method_name);
+    folder2 = fullfile(pwd, 'external', 'code3.2.1', ['data-' conf.datasets], 'res', conf.method_name);
     mkdir_if_missing(folder2);
     copyfile(folder1, folder2);
     if(0)

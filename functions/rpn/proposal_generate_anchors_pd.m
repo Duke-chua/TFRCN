@@ -51,7 +51,7 @@ function anchors = ratio_jitter(anchor, ratios)
     x_ctr = anchor(1) + (w - 1) / 2;
     y_ctr = anchor(2) + (h - 1) / 2;
     size = w * h;
-    
+    % keep size same
     size_ratios = size ./ ratios;
     ws = round(sqrt(size_ratios));
     hs = round(ws .* ratios);

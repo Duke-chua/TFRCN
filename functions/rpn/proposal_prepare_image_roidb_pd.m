@@ -82,7 +82,8 @@ function [image_roidb, means, stds] = append_bbox_regression_targets(conf, image
     bbox_targets = cell(num_images, 1);
     overlaps = cell(num_images, 1);
         
-    parfor i = 1:num_images
+%     parfor i = 1:num_images
+    for i = 1:num_images
 %        tic_toc_print('prepare bbox regression target: %d / %d\n', i, num_images);
         
         % for fcn, anchors are concated as [channel, height, width], where channel is the fastest dimension.

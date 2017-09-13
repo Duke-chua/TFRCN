@@ -129,7 +129,7 @@ function save_model_path = fast_rcnn_train_pd(conf, imdb_train, roidb_train, var
                     caffe_solver.net.forward(net_inputs);
                     
                     rst = caffe_solver.net.get_output();
-                     val_results = parse_rst(val_results, rst);
+                    val_results = parse_rst(val_results, rst);
                 end
             end
             

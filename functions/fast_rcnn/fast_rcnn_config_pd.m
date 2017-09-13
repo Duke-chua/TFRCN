@@ -51,6 +51,8 @@ function conf = fast_rcnn_config_pd(varargin)
     ip.addParamValue('eval_mul',        false,          @islogical);
     %[10.^(-2:.25:0)] reference points (see bbGt>compRoc)
     ip.addParamValue('eval_ref',        10.^(-2:.25:0), @isvector);
+
+    ip.addParamValue('datasets',        'USA',          @ischar);
     
     ip.parse(varargin{:});
     conf = ip.Results;

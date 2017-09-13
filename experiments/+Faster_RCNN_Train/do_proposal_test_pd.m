@@ -4,6 +4,7 @@ function [aboxes,miss] = do_proposal_test_pd(conf, model_stage, imdb, roidb)
                                         'net_file',         model_stage.output_model_file, ...
                                         'cache_name',       model_stage.cache_name); 
           
+    diary on;
     fprintf('Doing nms ... \n');                                
     aboxes                      = boxes_filter(aboxes, model_stage.nms.per_nms_topN, model_stage.nms.nms_overlap_thres, model_stage.nms.after_nms_topN, conf.use_gpu);      
     
@@ -87,6 +88,7 @@ function [aboxes,miss] = do_proposal_test_pd(conf, model_stage, imdb, roidb)
         dbEval_RPNBF;
         cd(tmp_dir);
     end
+    diary off;
 end
 
 function aboxes = boxes_filter(aboxes, per_nms_topN, nms_overlap_thres, after_nms_topN, use_gpu)

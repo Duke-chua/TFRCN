@@ -22,7 +22,7 @@ model.stage1_fast_rcnn.init_net_file            = model.pre_trained_net_file;
 
 
 %% stage 2 rpn, only finetune fc layers
-model.stage2_rpn.solver_def_file                = fullfile(pwd, 'models', 'Faster', 'rpn_prototxts', 'ZF_fc6', 'solver_30k40k.prototxt');
+model.stage2_rpn.solver_def_file                = fullfile(pwd, 'models', 'Faster', 'rpn_prototxts', 'ZF_fc6', 'solver_1k2k.prototxt');
 model.stage2_rpn.test_net_def_file              = fullfile(pwd, 'models', 'Faster', 'rpn_prototxts', 'ZF_fc6', 'test.prototxt');
 
 % rpn test setting

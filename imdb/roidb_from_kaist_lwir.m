@@ -20,7 +20,7 @@ anno_path = ['./datasets/kaist_lwir/' roidb.name '/annotations'];
 % prop_path = ['./datasets/kaist_lwir/' roidb.name '/proposals'];
 addpath(genpath('./external/piotr-toolbox-kaist'));
 % pLoad={'lbls',{'person'},'ilbls',{'people'},'squarify',{3,.41}};
-pLoad={'lbls',{'person'},'ilbls',{'people','person?','cyclist'},'squarify',{3,.41}}; % copy from acfDemoKAIST.m and add squarify see bbApply.m
+pLoad = {'lbls',{'person'},'ilbls',{'people','person?','cyclist'},'squarify',{3,.41}}; % copy from acfDemoKAIST.m and add squarify see bbApply.m
 pLoad = [pLoad 'hRng',[55 inf], 'vType', {'none'}]; % copy from acfDemoKAIST.m
 
 if flip
