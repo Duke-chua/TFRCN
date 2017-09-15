@@ -109,6 +109,7 @@ function save_model_path = proposal_train_pd(conf, imdb_train, roidb_train, vara
 %% -------------------- Training -------------------- 
 
     proposal_generate_minibatch_fun = @proposal_generate_minibatch_pd;
+    visual_debug_fun                = @proposal_visual_debug;
 
     % training
     shuffled_inds = [];
@@ -124,6 +125,7 @@ function save_model_path = proposal_train_pd(conf, imdb_train, roidb_train, vara
         [shuffled_inds, sub_db_inds] = generate_random_minibatch(shuffled_inds, image_roidb_train, conf.ims_per_batch, opts.fg_image_ratio);        
         [net_inputs, scale_inds] = proposal_generate_minibatch_fun(conf, image_roidb_train(sub_db_inds));
         
+        % visual_debug_fun(conf, image_roidb_train(sub_db_inds), net_inputs, bbox_means, bbox_stds, conf.classes, scale_inds);
         caffe_solver.net.reshape_as_input(net_inputs);
 
         % one iter SGD update

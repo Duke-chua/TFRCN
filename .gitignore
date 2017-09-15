@@ -1,5 +1,6 @@
 # User Ingore
-models/
+models/VGG16_caltech
+models/Faster
 data/
 external/code3.2.1
 external/piotr-toolbox-kaist
