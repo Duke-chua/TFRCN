@@ -17,13 +17,13 @@ opts.caffe_version          = 'caffe_faster_rcnn';
 opts.gpu_id                 = 4;
 active_caffe_mex(opts.gpu_id, opts.caffe_version);
 
-exp_name = 'faster_rcnn_scut_VGG16';
+exp_name = 'faster_rcnn_scut_VGG16_0';
 % do validation, or not 
 opts.do_val                 = true; 
 % model
-model                       = Model.VGG16_for_Faster_RCNN_scut;
+model                       = Model.VGG16_for_Faster_RCNN;
 % cache base
-cache_base_proposal         = 'faster_rcnn_scut_VGG16';
+cache_base_proposal         = 'vgg16';
 cache_base_fast_rcnn        = '';
 % train/test data
 dataset                     = [];
@@ -46,7 +46,7 @@ fprintf('\n***************\nstage one proposal \n***************\n');
 % train
 model.stage1_rpn            = Faster_RCNN_Train.do_proposal_train_pd(conf_proposal, dataset, model.stage1_rpn, opts.do_val);
 % proposal
-conf_proposal.method_name   = 'stage1-rpn';
+conf_proposal.method_name   = 'stage1-rpn-0';
 dataset.roidb_train         = cellfun(@(x, y) Faster_RCNN_Train.do_generate_proposal_pd(conf_proposal, model.stage1_rpn, x, y), dataset.imdb_train, dataset.roidb_train, 'UniformOutput', false);
 dataset.roidb_test          = Faster_RCNN_Train.do_generate_proposal_pd(conf_proposal, model.stage1_rpn, dataset.imdb_test, dataset.roidb_test);
 % test
@@ -59,7 +59,7 @@ fprintf('\n***************\nstage one fast rcnn\n***************\n');
 conf_fast_rcnn.exp_name     = exp_name;
 model.stage1_fast_rcnn      = Faster_RCNN_Train.do_fast_rcnn_train_pd(conf_fast_rcnn, dataset, model.stage1_fast_rcnn, opts.do_val);
 % test
-conf_fast_rcnn.method_name  = 'stage1-fast-rcnn';
+conf_fast_rcnn.method_name  = 'stage1-fast-rcnn-0';
 [~,opts.stage1_fast_miss]   = Faster_RCNN_Train.do_fast_rcnn_test_pd(conf_fast_rcnn, model.stage1_fast_rcnn, dataset.imdb_test, dataset.roidb_test);
 
 %%  stage two proposal
@@ -69,7 +69,7 @@ fprintf('\n***************\nstage two proposal\n***************\n');
 model.stage2_rpn.init_net_file = model.stage1_fast_rcnn.output_model_file;
 model.stage2_rpn            = Faster_RCNN_Train.do_proposal_train_pd(conf_proposal, dataset, model.stage2_rpn, opts.do_val);
 % proposal
-conf_proposal.method_name   = 'stage2-rpn';
+conf_proposal.method_name   = 'stage2-rpn-0';
 dataset.roidb_train        	= cellfun(@(x, y) Faster_RCNN_Train.do_generate_proposal_pd(conf_proposal, model.stage2_rpn, x, y), dataset.imdb_train, dataset.roidb_train, 'UniformOutput', false);
 dataset.roidb_test        	= Faster_RCNN_Train.do_generate_proposal_pd(conf_proposal, model.stage2_rpn, dataset.imdb_test, dataset.roidb_test);
 % test
@@ -85,12 +85,12 @@ model.stage2_fast_rcnn      = Faster_RCNN_Train.do_fast_rcnn_train_pd(conf_fast_
 %% final test
 fprintf('\n***************\nfinal test\n***************\n');
 
-conf_proposal.method_name   = 'rpn';
+conf_proposal.method_name   = 'rpn-0';
 model.stage2_rpn.nms        = model.final_test.nms;
 % proposal
 dataset.roidb_test          = Faster_RCNN_Train.do_generate_proposal_pd(conf_proposal, model.stage2_rpn, dataset.imdb_test, dataset.roidb_test);
 % test
-conf_fast_rcnn.method_name  = 'fast-rcnn';
+conf_fast_rcnn.method_name  = 'fast-rcnn-0';
 model.stage2_fast_rcnn.nms  = model.final_test.nms;
 [~,opts.final_fast_miss]    = Faster_RCNN_Train.do_fast_rcnn_test_pd(conf_fast_rcnn, model.stage2_fast_rcnn, dataset.imdb_test, dataset.roidb_test);
 
@@ -120,13 +120,14 @@ function conf = proposal_config(model)
                              ,'bg_thresh_lo',  0    ...
                              ,'test_scales',   576  ...
                              ,'test_max_size', 720  ...
-                             ,'test_nms',      0.3  ...
+                             ,'test_nms',      0.5  ...
+                             ,'test_min_box_height',50 ...
                              ,'datasets',     'scut' ...
                               );
     % for eval_pLoad
     pLoad={'lbls',{'walk_person'},'ilbls',{'ride_person','people','person?',...
        'people?','squat_person'},'squarify',{3,.41}};
-    pLoad = [pLoad 'hRng',[50 inf], 'vType',{'none','partial'},'xRng',[10 700],'yRng',[10 570]];
+    pLoad = [pLoad 'hRng',[50 inf], 'vType',{{'none','partial'}},'xRng',[10 700],'yRng',[10 570]];
     conf.eval_pLoad = pLoad;
 end
 
@@ -143,10 +144,11 @@ function conf = fast_rcnn_config(model)
                               ,'bbox_thresh',   0.5  ...
                               ,'test_scales',   576  ...
                               ,'test_max_size', 720  ...
+                              ,'test_nms',      0.3  ...
                               ,'datasets',     'scut' ...
                                );
     pLoad={'lbls',{'walk_person'},'ilbls',{'ride_person','people','person?',...
        'people?','squat_person'},'squarify',{3,.41}};
-    pLoad = [pLoad 'hRng',[50 inf], 'vType',{'none','partial'},'xRng',[10 700],'yRng',[10 570]];
+    pLoad = [pLoad 'hRng',[50 inf], 'vType',{{'none','partial'}},'xRng',[10 700],'yRng',[10 570]];
     conf.eval_pLoad = pLoad;
 end
