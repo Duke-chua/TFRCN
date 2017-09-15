@@ -177,7 +177,6 @@ function [bbox_targets, overlaps] = compute_targets(conf, gt_rois, gt_ignores, g
     if isempty(gt_rois)
         bbox_targets = zeros(size(ex_rois, 1), 5, 'double');
         bbox_targets(:, 1) = -1;
-
         return;
     end
 

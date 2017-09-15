@@ -1,15 +1,15 @@
 function script_rpn_pedestrian_VGG16_kaist_lwir()
 % script_rpn_pedestrian_VGG16_kaist_lwir()
 % --------------------------------------------------------
-% RPN_BF
+% RPN
 % Copyright (c) 2017, Zhewei Xu
 % Licensed under TByrhe MIT License [see LICENSE for details]
 % --------------------------------------------------------
 
 clc;
-% clear mex;
-% clear is_valid_handle; % to clear init_key
-% run(fullfile(fileparts(fileparts(mfilename('fullpath'))), 'startup'));
+clear mex;
+clear is_valid_handle; % to clear init_key
+run(fullfile(fileparts(fileparts(mfilename('fullpath'))), 'startup'));
 %% -------------------- CONFIG --------------------
 opts.caffe_version          = 'caffe_faster_rcnn';
 % opts.gpu_id                 = auto_select_gpu;
@@ -18,22 +18,18 @@ active_caffe_mex(opts.gpu_id, opts.caffe_version);
 
 % ouput
 exp_name = 'VGG16_kaist_lwir';
-% exp_name = 'RPN_kv_kaist_lwir';
-% exp_name = 'RPN_kv_kaist_lwir_flip';
 
 % do validation, or not 
 opts.do_val                 = true; 
 % model
 model                       = Model.VGG16_for_rpn_pedestrian_kaist_lwir('VGG16_caltech');
-% model                       = Model.RPN_kaist_visible_for_rpn_pedestrian_kaist_lwir('RPN_kaist_lwir');
+
 % cache base
 cache_base_proposal         = 'rpn_kaist_lwir_vgg_16layers'; % output/cache_base_proposal
 % train/test data
 dataset                     = [];
 use_flipped                 = false;
 dataset                     = Dataset.kaist_lwir_trainval(dataset, 'train', use_flipped);
-% dataset                     = Dataset.kaist_lwir_trainval(dataset, 'train');
-% dataset                     = Dataset.kaist_lwir_test(dataset, 'test', false);
 dataset                     = Dataset.kaist_lwir_test(dataset, 'test',false);
 
 % %% -------------------- TRAIN --------------------
@@ -45,12 +41,11 @@ model                       = Faster_RCNN_Train.set_cache_folder_pd(cache_base_p
 conf_proposal.exp_name = exp_name;
 [conf_proposal.anchors, conf_proposal.output_width_map, conf_proposal.output_height_map] ...
                             = proposal_prepare_anchors(conf_proposal, model.stage1_rpn.cache_name, model.stage1_rpn.test_net_def_file);
-
                         
 %%  train
 fprintf('\n***************\nstage one RPN train\n***************\n');
 model.stage1_rpn            = Faster_RCNN_Train.do_proposal_train_pd(conf_proposal, dataset, model.stage1_rpn, opts.do_val);
-% model.stage1_rpn.output_model_file = '/mnt/RD/Code/ubuntu/RPN_BF_FIR/output/VGG16_kaist_visible/rpn_cachedir/rpn_kaist_visible_vgg_16layers_stage1_rpn/final';
+
 %% test
 fprintf('\n***************\nstage one RPN test\n***************\n');
 conf_proposal.method_name = 'RPN-ped'; % external/piotr-toolbox-kaist/data-XXXX/res/method_name
@@ -59,9 +54,6 @@ Faster_RCNN_Train.do_proposal_test_pd(conf_proposal, model.stage1_rpn, dataset.i
 end
 
 function [anchors, output_width_map, output_height_map] = proposal_prepare_anchors(conf, cache_name, test_net_def_file)
-% conf                  - struct rpn parameter
-% cache_name            - [] rpn model name
-% test_net_def_file     - [] address model prototxt file address
     [output_width_map, output_height_map] ...                           
                                 = proposal_calc_output_size_pd(conf, test_net_def_file);
     anchors                = proposal_generate_anchors_pd(cache_name, ...

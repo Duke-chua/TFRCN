@@ -16,12 +16,12 @@ opts.caffe_version          = 'caffe_faster_rcnn';
 opts.gpu_id                 = 4;
 active_caffe_mex(opts.gpu_id, opts.caffe_version);
 
-exp_name = 'VGG16_caltech';
+exp_name = 'VGG16_caltech_test_0913';
 
 % do validation, or not 
 opts.do_val                 = true; 
 % model
-model                       = Model.VGG16_for_rpn_pedestrian_caltech(exp_name);
+model                       = Model.VGG16_for_rpn_pedestrian('VGG16_caltech');
 % cache base
 cache_base_proposal         = 'rpn_caltech_vgg_16layers';
 % train/test data
@@ -34,7 +34,7 @@ dataset                     = Dataset.caltech_test(dataset, 'test', false);
 % conf
 conf_proposal               = proposal_config(model);
 % set cache folder for each stage
-model                       = Faster_RCNN_Train.set_cache_folder_pd(cache_base_proposal, model);
+model                       = Faster_RCNN_Train.set_cache_folder_rpn(cache_base_proposal, model);
 % generate anchors and pre-calculate output size of rpn network 
 
 conf_proposal.exp_name = exp_name;
@@ -52,9 +52,6 @@ Faster_RCNN_Train.do_proposal_test_pd(conf_proposal, model.stage1_rpn, dataset.i
 end
 
 function [anchors, output_width_map, output_height_map] = proposal_prepare_anchors(conf, cache_name, test_net_def_file)
-% conf                  - struct rpn parameter
-% cache_name            - [] rpn model name
-% test_net_def_file     - [] address model prototxt file address
     [output_width_map, output_height_map] ...                           
                            = proposal_calc_output_size_pd(conf, test_net_def_file);
     anchors                = proposal_generate_anchors_pd(cache_name, ...
@@ -65,8 +62,8 @@ end
 
 function conf = proposal_config(model)
     conf = proposal_config_pd('image_means', model.mean_image,...
-                                   'feat_stride', model.feat_stride ...
-                                   );
+                              'feat_stride', model.feat_stride ...
+                              );
     % for eval_pLoad
     pLoad = {'lbls',{'person'},'ilbls',{'people'},'squarify',{3,.41}};
     pLoad = [pLoad 'hRng',[50 inf],'vRng',[.65 1],'xRng',[5 635],'yRng',[5 475]];

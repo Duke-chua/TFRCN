@@ -40,8 +40,7 @@ model                       = Faster_RCNN_Train.set_cache_folder_rpn(cache_base_
 conf_proposal.exp_name = exp_name;
 [conf_proposal.anchors, conf_proposal.output_width_map, conf_proposal.output_height_map] ...
                             = proposal_prepare_anchors(conf_proposal, model.stage1_rpn.cache_name, model.stage1_rpn.test_net_def_file);
-
-                        
+                
 %%  train
 fprintf('\n***************\nstage one RPN \n***************\n');
 model.stage1_rpn            = Faster_RCNN_Train.do_proposal_train_pd(conf_proposal, dataset, model.stage1_rpn, opts.do_val);
@@ -53,9 +52,6 @@ Faster_RCNN_Train.do_proposal_test_pd(conf_proposal, model.stage1_rpn, dataset.i
 end
 
 function [anchors, output_width_map, output_height_map] = proposal_prepare_anchors(conf, cache_name, test_net_def_file)
-% conf                  - struct rpn parameter
-% cache_name            - [] rpn model name
-% test_net_def_file     - [] address model prototxt file address
     [output_width_map, output_height_map] ...                           
                                 = proposal_calc_output_size_pd(conf, test_net_def_file);
     anchors                = proposal_generate_anchors_pd(cache_name, ...
