@@ -15,7 +15,7 @@ function [aboxes,miss] = do_fast_rcnn_test_pd(conf, model_stage, imdb, roidb, ig
     %% nms
     fprintf('Doing nms ... \n'); 
     aboxes                      = boxes_filter(aboxes, model_stage.nms.per_nms_topN, model_stage.nms.nms_overlap_thres, model_stage.nms.after_nms_topN, conf.use_gpu);
-    aboxes                      = boxes_thres(aboxes, 40);
+    % aboxes                      = boxes_thres(aboxes, 40);
     %% eval the gt recall
     gt_num = 0;
     gt_re_num = 0;
