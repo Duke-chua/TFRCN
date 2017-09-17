@@ -1,9 +1,9 @@
-function model = VGG16_for_Faster_RCNN(model)
+function model = VGG16_for_Faster_RCNN_M0(model)
 % VGG 16layers (only finetuned from conv3_1)
 
 nms.train_proposal.per_nms_topN   = -1;
 nms.train_proposal.nms_overlap_thres  = 0.7;
-nms.train_proposal.after_nms_topN = 2000;
+nms.train_proposal.after_nms_topN = 1000;
 
 nms.test_propsal.per_nms_topN   = 6000;
 nms.test_propsal.nms_overlap_thres  = 0.7;

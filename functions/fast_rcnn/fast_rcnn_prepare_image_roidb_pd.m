@@ -32,9 +32,41 @@ function [image_roidb, bbox_means, bbox_stds] = fast_rcnn_prepare_image_roidb_pd
         imdbs, roidbs, 'UniformOutput', false);
     
     image_roidb = cat(1, image_roidb{:});
+
+    % skip some empty image to save memory
+    % empty_image_sample_step = 1 equals use each img
+    empty_image_sample_step=1;
+    if empty_image_sample_step > 0
+        num_images = length(image_roidb);
+        keep_idxes = zeros(num_images, 1);        
+        keep_idxes(1:empty_image_sample_step:length(keep_idxes)) = 1;
+        % add the non-empty image
+        image_roidb_cell = num2cell(image_roidb, 2);
+        nonempty = 0;
+        for i = 1:num_images
+            %if ~isempty(image_roidb_cell{i}.boxes)
+            if ~isempty(find(image_roidb_cell{i}.gt_ignores == 0)) % check the gt_ignores
+                keep_idxes(i) = 1;
+                nonempty = nonempty+1;
+            end
+        end
+        clear image_roidb_cell;
+        fprintf('total (%d) = nonempty (%d) + empty (%d)\n', sum(keep_idxes), nonempty, sum(keep_idxes)-nonempty);
+        image_roidb = image_roidb(logical(keep_idxes));
+    end
+    
     
     % enhance roidb to contain bounding-box regression targets
     [image_roidb, bbox_means, bbox_stds] = append_bbox_regression_targets(conf, image_roidb, bbox_means, bbox_stds);
+
+    % check 
+    for i = 1:length(image_roidb)
+        if ~isempty(find(image_roidb(i).gt_ignores < 1))
+            if (sum(image_roidb(i).overlaps{1}>=0.5)==0)
+                disp(['all ols < 0.5 warning: ' image_roidb(i).image_id, ' max ol = ', num2str(max(image_roidb(i).overlaps{1}))]);
+            end
+        end   
+    end
 end
 
 function [image_roidb, means, stds] = append_bbox_regression_targets(conf, image_roidb, means, stds)
@@ -45,7 +77,7 @@ function [image_roidb, means, stds] = append_bbox_regression_targets(conf, image
     num_classes = size(image_roidb(1).overlap, 2);
     valid_imgs = true(num_images, 1);
     for i = 1:num_images
-       rois = image_roidb(i).boxes; 
+       rois = image_roidb(i).boxes;
        [image_roidb(i).bbox_targets, valid_imgs(i)] = ...
            compute_targets(conf, rois, image_roidb(i).overlap, image_roidb(i).gt_ignores);
     end
@@ -114,7 +146,7 @@ function [bbox_targets, is_valid] = compute_targets(conf, rois, overlap, gt_igno
     
     if ~isempty(gt_inds)
         % Indices of examples for which we try to make predictions
-        ex_inds = find(max_overlaps >= conf.bbox_thresh & max_overlaps ~= 1);
+        ex_inds = find(max_overlaps >= conf.bbox_thresh & max_overlaps < 1);
 
         % Get IoU overlap between each ex ROI and gt ROI
         ex_gt_overlaps = boxoverlap(rois(ex_inds, :), rois(gt_inds, :));
@@ -130,7 +162,7 @@ function [bbox_targets, is_valid] = compute_targets(conf, rois, overlap, gt_igno
         [regression_label] = fast_rcnn_bbox_transform(ex_rois, gt_rois);
 
         bbox_targets(ex_inds, :) = [max_labels(ex_inds), regression_label];
-        bbox_targets(gt_inds_full, 1) = 1;
+        bbox_targets(gt_inds, 1) = 1;
     end
     
     % Select foreground ROIs as those with >= fg_thresh overlap

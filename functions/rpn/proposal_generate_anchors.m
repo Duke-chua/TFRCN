@@ -17,12 +17,13 @@ function anchors = proposal_generate_anchors(cache_name, varargin)
     % scale list of anchors
     ip.addParamValue('scales',          2.^[3:5],       @ismatrix);    
     ip.addParamValue('ignore_cache',    false,          @islogical);
+    ip.addParamValue('exp_name',        'tmp',          @isstr);
     ip.parse(cache_name, varargin{:});
     opts = ip.Results;
 
 %%
     if ~opts.ignore_cache
-        anchor_cache_dir            = fullfile(pwd, 'output', 'rpn_cachedir', cache_name); 
+        anchor_cache_dir            = fullfile(pwd, 'output', opts.exp_name, 'rpn_cachedir', cache_name); 
                                       mkdir_if_missing(anchor_cache_dir);
         anchor_cache_file           = fullfile(anchor_cache_dir, 'anchors');
     end

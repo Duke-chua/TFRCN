@@ -17,7 +17,7 @@ opts.caffe_version          = 'caffe_faster_rcnn';
 opts.gpu_id                 = 4;
 active_caffe_mex(opts.gpu_id, opts.caffe_version);
 
-exp_name = 'faster_rcnn_caltech_vgg16_0';
+exp_name = 'faster_rcnn_caltech_vgg16_0_1';
 % do validation, or not 
 opts.do_val                 = true; 
 % model
@@ -46,10 +46,10 @@ fprintf('\n***************\nstage one proposal \n***************\n');
 % train
 model.stage1_rpn            = Faster_RCNN_Train.do_proposal_train_pd(conf_proposal, dataset, model.stage1_rpn, opts.do_val);
 % proposal
-conf_proposal.method_name   = 'stage1-rpn-0-1';
 dataset.roidb_train         = cellfun(@(x, y) Faster_RCNN_Train.do_generate_proposal_pd(conf_proposal, model.stage1_rpn, x, y), dataset.imdb_train, dataset.roidb_train, 'UniformOutput', false);
 dataset.roidb_test          = Faster_RCNN_Train.do_generate_proposal_pd(conf_proposal, model.stage1_rpn, dataset.imdb_test, dataset.roidb_test);
 % test
+conf_proposal.method_name   = 'stage1-rpn-0-1';
 model.stage1_rpn.nms        = model.nms.test; %M0
 [~,opt.stage1_rpn_miss]     = Faster_RCNN_Train.do_proposal_test_pd(conf_proposal, model.stage1_rpn, dataset.imdb_test, dataset.roidb_test);
 
@@ -69,10 +69,10 @@ fprintf('\n***************\nstage two proposal\n***************\n');
 model.stage2_rpn.init_net_file = model.stage1_fast_rcnn.output_model_file;
 model.stage2_rpn            = Faster_RCNN_Train.do_proposal_train_pd(conf_proposal, dataset, model.stage2_rpn, opts.do_val);
 % proposal
-conf_proposal.method_name   = 'stage2-rpn';
 dataset.roidb_train        	= cellfun(@(x, y) Faster_RCNN_Train.do_generate_proposal_pd(conf_proposal, model.stage2_rpn, x, y), dataset.imdb_train, dataset.roidb_train, 'UniformOutput', false);
 dataset.roidb_test        	= Faster_RCNN_Train.do_generate_proposal_pd(conf_proposal, model.stage2_rpn, dataset.imdb_test, dataset.roidb_test);
 % test
+conf_proposal.method_name   = 'stage2-rpn';
 model.stage2_rpn.nms        = model.nms.test;
 [~,opt.stage2_rpn_miss]     = Faster_RCNN_Train.do_proposal_test_pd(conf_proposal, model.stage2_rpn, dataset.imdb_test, dataset.roidb_test);
 
@@ -84,10 +84,8 @@ model.stage2_fast_rcnn      = Faster_RCNN_Train.do_fast_rcnn_train_pd(conf_fast_
 
 %% final test
 fprintf('\n***************\nfinal test\n***************\n');
-
-conf_proposal.method_name   = 'rpn';
-model.stage2_rpn.nms        = model.nms.test_propsal;
 % proposal
+model.stage2_rpn.nms        = model.nms.test_propsal;
 dataset.roidb_test          = Faster_RCNN_Train.do_generate_proposal_pd(conf_proposal, model.stage2_rpn, dataset.imdb_test, dataset.roidb_test);
 % test
 conf_fast_rcnn.method_name  = 'fast-rcnn';
@@ -101,7 +99,8 @@ function [anchors, output_width_map, output_height_map] = proposal_prepare_ancho
     [output_width_map, output_height_map] ...                           
                                 = proposal_calc_output_size_pd(conf, test_net_def_file);
     anchors                = proposal_generate_anchors_pd(cache_name, ...
-                                    'scales',  2.^[3:5],...
+                                    'scales',  2.6*(1.3.^(0:8)), ...
+                                    'ratios', [1 / 0.41], ...
                                     'exp_name', conf.exp_name);
 end
 
@@ -135,7 +134,7 @@ function conf = fast_rcnn_config(model)
                               ,'ims_per_batch', 2    ...
                               ,'batch_size',    128  ...
                               ,'fg_fraction',   0.25 ...
-                              ,'fg_thresh',     0.5  ...
+                              ,'fg_thresh',     0.8  ...
                               ,'bg_thresh_hi',  0.5  ...
                               ,'bg_thresh_lo',  0    ...
                               ,'bbox_thresh',   0.5  ...
