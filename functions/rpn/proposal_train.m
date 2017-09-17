@@ -33,7 +33,7 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
     
 %% try to find trained model
     imdbs_name = cell2mat(cellfun(@(x) x.name, imdb_train, 'UniformOutput', false));
-    cache_dir = fullfile(pwd, 'output', 'rpn_cachedir', opts.cache_name, imdbs_name);
+    cache_dir = fullfile(pwd, 'output', conf.exp_name, 'rpn_cachedir', opts.cache_name, imdbs_name);
     save_model_path = fullfile(cache_dir, 'final');
     if exist(save_model_path, 'file')
         return;
@@ -42,7 +42,7 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
 %% init  
     % init caffe solver
     imdbs_name = cell2mat(cellfun(@(x) x.name, imdb_train, 'UniformOutput', false));
-    cache_dir = fullfile(pwd, 'output', 'rpn_cachedir', opts.cache_name, imdbs_name);
+    cache_dir = fullfile(pwd, 'output', conf.exp_name, 'rpn_cachedir', opts.cache_name, imdbs_name);
     mkdir_if_missing(cache_dir);
     caffe_log_file_base = fullfile(cache_dir, 'caffe_log');
     caffe.init_log(caffe_log_file_base);

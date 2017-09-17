@@ -23,7 +23,7 @@ function aboxes = proposal_test(conf, imdb, varargin)
     opts = ip.Results;
     
 
-    cache_dir = fullfile(pwd, 'output', 'rpn_cachedir', opts.cache_name, imdb.name);
+    cache_dir = fullfile(pwd, 'output', conf.exp_name, 'rpn_cachedir', opts.cache_name, imdb.name);
     try
         % try to load cache
         ld = load(fullfile(cache_dir, ['proposal_boxes_' imdb.name opts.suffix]));

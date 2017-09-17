@@ -4,12 +4,16 @@ function roidb_new = do_proposal_test(conf, model_stage, imdb, roidb)
                                         'net_file',         model_stage.output_model_file, ...
                                         'cache_name',       model_stage.cache_name);      
                                     
+%     % for evaluation                                
+%     result_eval(conf,aboxes,model_stage,imdb,roidb);
+    
     aboxes                      = boxes_filter(aboxes, model_stage.nms.per_nms_topN, model_stage.nms.nms_overlap_thres, model_stage.nms.after_nms_topN, conf.use_gpu);    
     
     roidb_regions               = make_roidb_regions(aboxes, imdb.image_ids);  
     
     roidb_new                   = roidb_from_proposal(imdb, roidb, roidb_regions, ...
-                                        'keep_raw_proposal', false);    
+                                        'keep_raw_proposal', false);
+    
 end
 
 function aboxes = boxes_filter(aboxes, per_nms_topN, nms_overlap_thres, after_nms_topN, use_gpu)
