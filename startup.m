@@ -12,9 +12,7 @@ function startup()
     addpath(genpath(fullfile(curdir, 'bin')));
     addpath(genpath(fullfile(curdir, 'experiments')));
     addpath(genpath(fullfile(curdir, 'imdb')));
-    
-    addpath(fullfile(curdir, 'datasets/caltech'));
-
+    addpath(genpath(fullfile(curdir, 'external/code3.2.1')));
     addpath(genpath(fullfile(curdir, 'external/toolbox')));
 
     caffe_path = fullfile(curdir, 'external', 'caffe', 'matlab');

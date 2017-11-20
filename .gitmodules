@@ -1,0 +1,9 @@
+[submodule "external/caffe"]
+	path = external/caffe
+	url = https://github.com/xzhewei/X-caffe/tree/TFRCN.git
+[submodule "external/toolbox"]
+	path = external/toolbox
+	url = https://github.com/xzhewei/cvtoolbox/tree/scut.git
+[submodule "external/code3.2.1"]
+	path = external/code3.2.1
+	url = https://github.com/xzhewei/datatool.git

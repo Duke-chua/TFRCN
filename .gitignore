@@ -1,3 +1,25 @@
+# User Ingore
+models/VGG16_caltech/pre_trained_models
+models/Faster/pre_trained_models
+external/code3.2.1
+external/toolbox
+datasets/caltech
+datasets/kaist
+datasets/scut
+output/
+cachedir/
+imdb/cache
+*.caffemodel
+*.mat
+*.jpg
+*.mexa64
+bin/
+
+# =========================
+# Operating System Files
+# =========================
+# Windows
+# =========================
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
@@ -8,21 +30,6 @@ Desktop.ini
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
 
-# User Ingore
-models/
-data/
-external/code3.2.1
-datasets/caltech/test
-datasets/caltech/train
-output/
-cachedir/
-imdb/cache
-*.caffemodel
-*.mat
-*.jpg
-bin/
-
-
 # Windows Installer files
 *.cab
 *.msi
@@ -32,9 +39,6 @@ bin/
 # Windows shortcuts
 *.lnk
 
-# =========================
-# Operating System Files
-# =========================
 
 # OSX
 # =========================
@@ -56,3 +60,5 @@ bin/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+*.gz

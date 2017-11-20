@@ -28,13 +28,13 @@ end
 
 if use_gpu
     s = boxes(:, end);
-    if ~issorted(s(end:-1:1))
+    if ~issorted(s(end:-1:1)) % if not sort then sort 
         [~, I] = sort(s, 'descend');
         boxes = boxes(I, :);
         pick = nms_gpu_mex(single(boxes)', double(overlap));
         pick = I(pick);
     else
-        pick = nms_gpu_mex(single(boxes)', double(overlap));
+        pick = nms_gpu_mex(single(boxes)', double(overlap)); %gpu do nms, return index
     end
     return;
 end
@@ -44,6 +44,7 @@ if size(boxes, 1) < 1000000
     return;
 end
 
+% matlab nms code
 x1 = boxes(:,1);
 y1 = boxes(:,2);
 x2 = boxes(:,3);
@@ -51,16 +52,17 @@ y2 = boxes(:,4);
 s = boxes(:,end);
 
 area = (x2-x1+1) .* (y2-y1+1);
-[vals, I] = sort(s);
+[vals, I] = sort(s); % ascend sort 
 
 pick = s*0;
 counter = 1;
 while ~isempty(I)
-  last = length(I);
+  last = length(I); % buttom box socre high
   i = I(last);  
   pick(counter) = i;
   counter = counter + 1;
   
+  % box i compute IoU with any sorce low then it
   xx1 = max(x1(i), x1(I(1:last-1)));
   yy1 = max(y1(i), y1(I(1:last-1)));
   xx2 = min(x2(i), x2(I(1:last-1)));
@@ -72,7 +74,7 @@ while ~isempty(I)
   inter = w.*h;
   o = inter ./ (area(i) + area(I(1:last-1)) - inter);
   
-  I = I(find(o<=overlap));
+  I = I(find(o<=overlap)); % keep IoU lower thr
 end
 
 pick = pick(1:(counter-1));

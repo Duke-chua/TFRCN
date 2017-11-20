@@ -20,7 +20,7 @@ anno_path = ['./datasets/caltech/' roidb.name '/annotations'];
 % prop_path = ['./datasets/caltech/' roidb.name '/proposals'];
 
 addpath(genpath('./external/code3.2.1'));
-pLoad={'lbls',{'person'},'ilbls',{'people'},'squarify',{3,.41}};
+pLoad = {'lbls',{'person'},'ilbls',{'people'},'squarify',{3,.41}};
 pLoad = [pLoad 'hRng',[50 inf], 'vRng',[1 1] ];
 
 if flip
@@ -35,13 +35,8 @@ catch
   roidb.name = imdb.name;
 
   fprintf('Loading region proposals...');
-%   regions = [];
 
   regions = [];
-  
-%   if exist(prop_path, 'dir')
-%       regions = load_proposals(imdb, prop_path, pLoad);
-%   end
   
   fprintf('done\n');
   if isempty(regions)
@@ -96,7 +91,7 @@ catch
               end
           end
       else
-          % for ori
+          % for ori gt=[c r w h]
           x1 = gts(:,1);
           y1 = gts(:,2);
           x2 = gts(:,1) + gts(:,3);
@@ -112,6 +107,9 @@ catch
   fprintf('done\n');
   
   fprintf('num_gt / num_ignore %d / %d \n', num_gt_no_ignores, num_gts);
+end
+roidb.anno_path = anno_path;
+roidb.pLoad = pLoad;
 end
 
 
@@ -129,14 +127,14 @@ function rec = attach_proposals(boxes, gt_boxes, ignores)
 
 all_boxes = cat(1, gt_boxes, boxes);
 gt_classes = ones(size(gt_boxes, 1), 1); % set pedestrian label as 1
-num_gt_boxes = size(gt_boxes, 1);
+num_gt_boxes = size(gt_boxes, 1); %gt box
 
-num_boxes = size(boxes, 1);
+num_boxes = size(boxes, 1);% proposal box
 
-rec.gt = cat(1, true(num_gt_boxes, 1), false(num_boxes, 1));
+rec.gt = cat(1, true(num_gt_boxes, 1), false(num_boxes, 1)); % proposal box default false
 rec.overlap = zeros(num_gt_boxes+num_boxes, 1, 'single');
 for i = 1:num_gt_boxes
-  rec.overlap(:, gt_classes(i)) = ...
+  rec.overlap(:, gt_classes(i)) = ... % one col for an class, there only one class, get every box overlap with gt_box
       max(rec.overlap(:, gt_classes(i)), boxoverlap(all_boxes, gt_boxes(i, :)));
 end
 rec.boxes = single(all_boxes);
@@ -144,3 +142,4 @@ rec.feat = [];
 rec.class = uint8(cat(1, gt_classes, zeros(num_boxes, 1)));
 
 rec.ignores = ignores;
+end

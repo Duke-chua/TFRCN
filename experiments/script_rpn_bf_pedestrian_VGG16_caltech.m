@@ -14,16 +14,14 @@ exp_name = 'VGG16_caltech';
 % do validation, or not 
 opts.do_val                 = true; 
 % model
-model                       = Model.VGG16_for_rpn_pedestrian_caltech(exp_name);
+model                       = Model.VGG16_for_rpn_pedestrian(exp_name);
 % cache base
 cache_base_proposal         = 'rpn_caltech_vgg_16layers';
 % train/test data
 dataset                     = [];
-% use_flipped                 = true;
-% dataset                     = Dataset.caltech_trainval(dataset, 'train', use_flipped);
-dataset                     = Dataset.caltech_trainval(dataset, 'train');
-% dataset                     = Dataset.caltech_test(dataset, 'test', false);
-dataset                     = Dataset.caltech_test(dataset, 'test');
+use_flipped                 = false;
+dataset                     = Dataset.caltech_trainval(dataset, 'train', use_flipped);
+dataset                     = Dataset.caltech_test(dataset, 'test', false);
 
 % %% -------------------- TRAIN --------------------
 % conf
@@ -31,12 +29,9 @@ conf_proposal               = proposal_config_caltech('image_means', model.mean_
 % set cache folder for each stage
 model                       = Faster_RCNN_Train.set_cache_folder_caltech(cache_base_proposal, model);
 % generate anchors and pre-calculate output size of rpn network 
-
 conf_proposal.exp_name = exp_name;
 [conf_proposal.anchors, conf_proposal.output_width_map, conf_proposal.output_height_map] ...
                             = proposal_prepare_anchors(conf_proposal, model.stage1_rpn.cache_name, model.stage1_rpn.test_net_def_file);
-
-
 
 %% read the RPN model
 imdbs_name = cell2mat(cellfun(@(x) x.name, dataset.imdb_train, 'UniformOutput', false));
