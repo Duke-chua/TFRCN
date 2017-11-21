@@ -1,8 +1,6 @@
 # User Ingore
 models/VGG16_caltech/pre_trained_models
 models/Faster/pre_trained_models
-external/code3.2.1
-external/toolbox
 datasets/caltech
 datasets/kaist
 datasets/scut
