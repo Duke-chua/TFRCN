@@ -33,7 +33,7 @@ The SCUT FIR Pedestrians Dataset is a large far infrared pedestrian detection da
    - Download the SCUT Dataset the videos into `./external/code3.2.1/data-scut/videos` directory
    - Download the SCUT Dataset the annotations into `./external/code3.2.1/data-scut/annotations` directory
 
-4. Download the VGG-16 pretrain model and the relative prototxt in `VGG16_pretrain.zip` from [BaiduYun](http://pan.baidu.com/s/1nvGYOVR) or [GoggleDrive](https://1drv.ms/u/s!AgVYvWT--3HKhCwAD2i_JvgIOPrR), and unzip it in the repo folder.
+4. Download the VGG-16 pretrain model in `VGG16_pretrain.zip` from [BaiduYun](https://pan.baidu.com/s/1mkcKVxu) or [GoogleDrive](https://drive.google.com/open?id=1noxehhM0SyzmBCIsMv--joIq37w_N1DK), and unzip it in the repo folder.
 
 5. RUN `./startup()` and `./tfrcn_build()` 
 
