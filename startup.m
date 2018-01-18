@@ -27,5 +27,5 @@ function startup()
 
     mkdir_if_missing(fullfile(curdir, 'models'));
 
-    fprintf('RPN_BF startup done\n');
+    fprintf('TFRCN startup done\n');
 end
